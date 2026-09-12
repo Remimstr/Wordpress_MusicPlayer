@@ -35,7 +35,7 @@ const icons = {
 };
 
 
-const player = document.querySelector(".composer-floating-player");
+const player = document.querySelector("#composer-floating-player");
 const audio = document.querySelector(".composer-player-audio");
 
 const tracklist = document.querySelector(".composer-tracklist");
@@ -143,7 +143,7 @@ function renderTracklist() {
 
     row.innerHTML = `
       <button
-        class="composer-track-play"
+        class="composer-track-play composer-player-button"
         type="button"
         aria-label="Play ${track.title}"
       >
