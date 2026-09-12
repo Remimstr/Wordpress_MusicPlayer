@@ -18,6 +18,25 @@ const durationElement = document.querySelector(
   ".composer-player-duration"
 );
 
+const floatingPlayer = document.getElementById(
+  "composer-floating-player"
+);
+
+if (floatingPlayer) {
+  const updatePlayerHeight = () => {
+    const height = floatingPlayer.getBoundingClientRect().height;
+
+    document.documentElement.style.setProperty(
+      "--composer-player-height",
+      `${height}px`
+    );
+  };
+
+  updatePlayerHeight();
+
+  new ResizeObserver(updatePlayerHeight).observe(floatingPlayer);
+}
+
 let currentTrackIndex = 0;
 
 function setButtonIcon(button, src) {
