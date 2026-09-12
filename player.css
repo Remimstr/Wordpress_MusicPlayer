@@ -1,0 +1,758 @@
+/* =========================================================
+   PLAYER VARIABLES
+   ========================================================= */
+
+#composer-player,
+.composer-floating-player {
+  /* -------------------------------------------------------
+     COLOURS
+     ------------------------------------------------------- */
+
+  --player-accent: #c87945;
+  --player-accent-hover: #e09a63;
+
+  --player-text: #f1f0eb;
+  --player-text-muted: #a4a39e;
+  --player-text-subtle: #777875;
+
+  --player-bg: #0b0c0e;
+  --player-bg-elevated: #15171a;
+
+  --player-border: rgba(255, 255, 255, 0.09);
+
+  --player-progress-background: rgba(255, 255, 255, 0.22);
+
+
+  /* -------------------------------------------------------
+     TYPOGRAPHY
+     ------------------------------------------------------- */
+
+  --player-font-family:
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    Helvetica,
+    Arial,
+    sans-serif;
+
+  --player-title-size: 15px;
+  --player-title-weight: 600;
+
+  --player-style-size: 14px;
+  --player-style-weight: 400;
+
+  --player-time-size: 13px;
+  --player-time-weight: 400;
+
+  --player-track-title-size: 16px;
+  --player-track-title-weight: 500;
+
+  --player-track-style-size: 14px;
+  --player-track-style-weight: 400;
+
+  --player-track-duration-size: 13px;
+
+
+  /* -------------------------------------------------------
+     ICONS
+     ------------------------------------------------------- */
+  .composer-player-button img {
+    width: var(--player-control-icon-size);
+    height: var(--player-control-icon-size);
+    display: block;
+    object-fit: contain;
+    pointer-events: none;
+  }
+
+  /* -------------------------------------------------------
+     FLOATING PLAYER
+     ------------------------------------------------------- */
+
+  --player-height: 76px;
+  --player-max-width: 1400px;
+
+  --player-padding-x: 20px;
+  --player-padding-y: 11px;
+
+  --player-content-gap: 20px;
+
+
+  /* -------------------------------------------------------
+     TRANSPORT CONTROLS
+     ------------------------------------------------------- */
+
+  --player-control-size: 38px;
+  --player-play-size: 42px;
+
+  --player-control-icon-size: 22px;
+  --player-skip-icon-size: 16px;
+  --player-play-icon-size: 17px;
+
+  --player-control-gap: 2px;
+
+  --player-control-hover-bg: rgba(255, 255, 255, 0.07);
+
+
+  /* -------------------------------------------------------
+     TRACK LIST
+     ------------------------------------------------------- */
+
+  --player-track-min-height: 82px;
+
+  --player-track-padding-x: 20px;
+  --player-track-padding-y: 15px;
+
+  --player-track-icon-column: 46px;
+
+  --player-track-duration-gap: 20px;
+
+
+  /* -------------------------------------------------------
+     PROGRESS BAR
+     ------------------------------------------------------- */
+
+  --player-progress-height: 7px;
+  --player-progress-track-height: 5px;
+  --player-progress-thumb-size: 12px;
+
+  --player-progress-time-gap: 14px;
+
+  --player-progress-thumb-shadow:
+    0 0 0 2px rgba(11, 12, 14, 0.8);
+
+
+  /* -------------------------------------------------------
+     HEADING
+     ------------------------------------------------------- */
+
+  --player-heading-gap: 8px;
+  --player-heading-margin-bottom: 8px;
+
+
+  /* -------------------------------------------------------
+     TIME DISPLAY
+     ------------------------------------------------------- */
+
+  --player-time-gap: 5px;
+
+
+  /* -------------------------------------------------------
+     MOBILE
+     ------------------------------------------------------- */
+
+  --player-mobile-height: 72px;
+
+  --player-mobile-padding-x: 13px;
+  --player-mobile-padding-y: 10px;
+
+  --player-mobile-content-gap: 10px;
+
+  --player-mobile-control-size: 32px;
+  --player-mobile-play-size: 38px;
+
+  --player-mobile-title-size: 14px;
+  --player-mobile-style-size: 13px;
+  --player-mobile-time-size: 12px;
+}
+
+
+/* =========================================================
+   TRACK LIST
+   ========================================================= */
+
+#composer-player {
+  width: 100%;
+
+  color: var(--player-text);
+  background: var(--player-bg);
+
+  font-family: var(--player-font-family);
+}
+
+.composer-tracklist {
+  width: 100%;
+}
+
+.composer-track {
+  position: relative;
+
+  display: grid;
+  grid-template-columns:
+    var(--player-track-icon-column)
+    minmax(0, 1fr)
+    auto;
+
+  align-items: center;
+
+  min-height: var(--player-track-min-height);
+
+  padding:
+    var(--player-track-padding-y)
+    var(--player-track-padding-x);
+
+  border-bottom: 1px solid var(--player-border);
+
+  cursor: pointer;
+
+  transition:
+    background-color 180ms ease,
+    color 180ms ease;
+}
+
+.composer-track:hover,
+.composer-track.is-active {
+  background: var(--player-bg-elevated);
+}
+
+
+/* =========================================================
+   TRACK PLAY BUTTON
+   ========================================================= */
+
+.composer-track-play {
+  display: flex;
+
+  align-items: center;
+  justify-content: flex-start;
+
+  width: 36px;
+  height: 36px;
+
+  padding: 0;
+
+  border: 0;
+
+  background: transparent;
+
+  color: var(--player-text-muted);
+
+  font-family: var(--player-font-family);
+
+  font-size: var(--player-control-icon-size);
+
+  line-height: 1;
+
+  cursor: pointer;
+}
+
+.composer-track:hover .composer-track-play,
+.composer-track.is-active .composer-track-play {
+  color: var(--player-accent);
+}
+
+
+/* =========================================================
+   TRACK INFORMATION
+   ========================================================= */
+
+.composer-track-info {
+  min-width: 0;
+}
+
+.composer-track-title {
+  color: var(--player-text);
+
+  font-family: var(--player-font-family);
+
+  font-size: var(--player-track-title-size);
+  font-weight: var(--player-track-title-weight);
+
+  line-height: 1.35;
+}
+
+.composer-track-style {
+  margin-top: 4px;
+
+  color: var(--player-text-muted);
+
+  font-family: var(--player-font-family);
+
+  font-size: var(--player-track-style-size);
+  font-weight: var(--player-track-style-weight);
+
+  line-height: 1.3;
+}
+
+.composer-track-duration {
+  margin-left: var(--player-track-duration-gap);
+
+  color: var(--player-text-subtle);
+
+  font-family: var(--player-font-family);
+
+  font-size: var(--player-track-duration-size);
+
+  font-variant-numeric: tabular-nums;
+}
+
+
+/* =========================================================
+   FLOATING PLAYER
+   ========================================================= */
+
+.composer-floating-player {
+  position: fixed;
+
+  z-index: 9999;
+
+  right: 0;
+  bottom: 0;
+  left: 0;
+
+  color: var(--player-text);
+
+  background: rgba(11, 12, 14, 0.97);
+
+  border-top: 1px solid var(--player-border);
+
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+
+  font-family: var(--player-font-family);
+}
+
+.composer-player-inner {
+  display: grid;
+
+  grid-template-columns: auto minmax(0, 1fr);
+
+  align-items: center;
+
+  gap: var(--player-content-gap);
+
+  min-height: var(--player-height);
+
+  max-width: var(--player-max-width);
+
+  margin: 0 auto;
+
+  padding:
+    var(--player-padding-y)
+    var(--player-padding-x);
+}
+
+
+/* =========================================================
+   TRANSPORT
+   ========================================================= */
+
+.composer-player-transport {
+  display: flex;
+
+  align-items: center;
+
+  gap: var(--player-control-gap);
+}
+
+.composer-player-button {
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  width: var(--player-control-size);
+  height: var(--player-control-size);
+
+  padding: 0;
+
+  border: 0;
+  border-radius: 50%;
+
+  background: transparent;
+
+  color: var(--player-text-muted);
+
+  font-family: var(--player-font-family);
+
+  font-size: var(--player-control-icon-size);
+  font-weight: 500;
+
+  line-height: 1;
+
+  cursor: pointer;
+
+  transition:
+    color 150ms ease,
+    background-color 150ms ease,
+    transform 150ms ease;
+}
+
+.composer-player-button:hover {
+  color: var(--player-text);
+
+  background: var(--player-control-hover-bg);
+}
+
+.composer-player-button:active {
+  transform: scale(0.94);
+}
+
+
+/* Previous / next */
+
+.composer-player-prev,
+.composer-player-next {
+  font-size: var(--player-skip-icon-size);
+}
+
+
+/* Main play button */
+
+.composer-player-play {
+  width: var(--player-play-size);
+  height: var(--player-play-size);
+
+  margin: 0 2px;
+
+  color: var(--player-text);
+
+  font-size: var(--player-play-icon-size);
+}
+
+.composer-player-play:hover {
+  color: var(--player-accent-hover);
+
+  background: var(--player-control-hover-bg);
+}
+
+
+/* =========================================================
+   PLAYER MAIN
+   ========================================================= */
+
+.composer-player-main {
+  min-width: 0;
+}
+
+
+/* =========================================================
+   PLAYER HEADING
+   ========================================================= */
+
+.composer-player-heading {
+  display: flex;
+
+  align-items: baseline;
+
+  gap: var(--player-heading-gap);
+
+  min-width: 0;
+
+  margin-bottom: var(--player-heading-margin-bottom);
+
+  white-space: nowrap;
+
+  overflow: hidden;
+}
+
+.composer-player-title {
+  flex-shrink: 0;
+
+  color: var(--player-text);
+
+  font-family: var(--player-font-family);
+
+  font-size: var(--player-title-size);
+  font-weight: var(--player-title-weight);
+
+  line-height: 1.2;
+}
+
+.composer-player-separator {
+  flex-shrink: 0;
+
+  color: var(--player-text-subtle);
+
+  font-family: var(--player-font-family);
+
+  font-size: var(--player-style-size);
+}
+
+.composer-player-style {
+  min-width: 0;
+
+  overflow: hidden;
+
+  color: var(--player-text-muted);
+
+  font-family: var(--player-font-family);
+
+  font-size: var(--player-style-size);
+  font-weight: var(--player-style-weight);
+
+  line-height: 1.2;
+
+  white-space: nowrap;
+
+  text-overflow: ellipsis;
+}
+
+
+/* =========================================================
+   PROGRESS + TIME
+   ========================================================= */
+
+.composer-player-progress-row {
+  display: grid;
+
+  grid-template-columns:
+    minmax(0, 1fr)
+    auto;
+
+  align-items: center;
+
+  gap: var(--player-progress-time-gap);
+}
+
+.composer-floating-progress {
+  width: 100%;
+}
+
+.composer-progress {
+  display: block;
+
+  width: 100%;
+
+  height: var(--player-progress-height);
+
+  margin: 0;
+
+  padding: 0;
+
+  appearance: none;
+  -webkit-appearance: none;
+
+  background: transparent;
+
+  cursor: pointer;
+}
+
+
+/* =========================================================
+   PROGRESS — WEBKIT
+   ========================================================= */
+
+.composer-progress::-webkit-slider-runnable-track {
+  height: var(--player-progress-track-height);
+
+  border-radius: var(--player-progress-track-height);
+
+  background: linear-gradient(
+    to right,
+    var(--player-accent) 0%,
+    var(--player-accent) var(--progress, 0%),
+    var(--player-progress-background) var(--progress, 0%),
+    var(--player-progress-background) 100%
+  );
+}
+
+.composer-progress::-webkit-slider-thumb {
+  width: var(--player-progress-thumb-size);
+  height: var(--player-progress-thumb-size);
+
+  margin-top:
+    calc(
+      (
+        var(--player-progress-track-height)
+        - var(--player-progress-thumb-size)
+      ) / 2
+    );
+
+  border: 0;
+  border-radius: 50%;
+
+  appearance: none;
+  -webkit-appearance: none;
+
+  background: var(--player-accent);
+
+  box-shadow: var(--player-progress-thumb-shadow);
+
+  transition:
+    transform 120ms ease,
+    background-color 120ms ease;
+}
+
+.composer-progress:hover::-webkit-slider-thumb {
+  background: var(--player-accent-hover);
+
+  transform: scale(1.15);
+}
+
+
+/* =========================================================
+   PROGRESS — FIREFOX
+   ========================================================= */
+
+.composer-progress::-moz-range-track {
+  height: var(--player-progress-track-height);
+
+  border-radius: var(--player-progress-track-height);
+
+  background: var(--player-progress-background);
+}
+
+.composer-progress::-moz-range-progress {
+  height: var(--player-progress-track-height);
+
+  border-radius: var(--player-progress-track-height);
+
+  background: var(--player-accent);
+}
+
+.composer-progress::-moz-range-thumb {
+  width: var(--player-progress-thumb-size);
+  height: var(--player-progress-thumb-size);
+
+  border: 0;
+  border-radius: 50%;
+
+  background: var(--player-accent);
+
+  box-shadow: var(--player-progress-thumb-shadow);
+}
+
+
+/* =========================================================
+   TIME
+   ========================================================= */
+
+.composer-player-time {
+  display: flex;
+
+  align-items: center;
+
+  gap: var(--player-time-gap);
+
+  color: var(--player-text-muted);
+
+  font-family: var(--player-font-family);
+
+  font-size: var(--player-time-size);
+  font-weight: var(--player-time-weight);
+
+  font-variant-numeric: tabular-nums;
+
+  white-space: nowrap;
+}
+
+.composer-time-separator {
+  color: var(--player-text-subtle);
+}
+
+
+/* =========================================================
+   FOCUS STATES
+   ========================================================= */
+
+.composer-player-button:focus-visible,
+.composer-track-play:focus-visible,
+.composer-progress:focus-visible {
+  outline: 2px solid var(--player-accent);
+
+  outline-offset: 3px;
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 640px) {
+
+  .composer-player-inner {
+    grid-template-columns: auto minmax(0, 1fr);
+
+    gap: var(--player-mobile-content-gap);
+
+    min-height: var(--player-mobile-height);
+
+    padding:
+      var(--player-mobile-padding-y)
+      var(--player-mobile-padding-x);
+  }
+
+  .composer-player-transport {
+    gap: 0;
+  }
+
+  .composer-player-button {
+    width: var(--player-mobile-control-size);
+    height: var(--player-mobile-control-size);
+
+    font-size: 13px;
+  }
+
+  .composer-player-prev,
+  .composer-player-next {
+    font-size: 14px;
+  }
+
+  .composer-player-play {
+    width: var(--player-mobile-play-size);
+    height: var(--player-mobile-play-size);
+
+    font-size: 15px;
+  }
+
+  .composer-player-heading {
+    gap: 6px;
+
+    margin-bottom: 7px;
+  }
+
+  .composer-player-title {
+    font-size: var(--player-mobile-title-size);
+  }
+
+  .composer-player-separator,
+  .composer-player-style {
+    font-size: var(--player-mobile-style-size);
+  }
+
+  .composer-player-progress-row {
+    gap: 9px;
+  }
+
+  .composer-player-time {
+    font-size: var(--player-mobile-time-size);
+  }
+
+
+  /* -------------------------------------------------------
+     Mobile track list
+     ------------------------------------------------------- */
+
+  .composer-track {
+    grid-template-columns:
+      40px
+      minmax(0, 1fr)
+      auto;
+
+    min-height: 76px;
+
+    padding: 13px 14px;
+  }
+
+  .composer-track-play {
+    width: 32px;
+    height: 32px;
+
+    font-size: 14px;
+  }
+
+  .composer-track-title {
+    font-size: 15px;
+  }
+
+  .composer-track-style {
+    font-size: 13px;
+  }
+
+  .composer-track-duration {
+    margin-left: 12px;
+
+    font-size: 12px;
+  }
+}
