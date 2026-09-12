@@ -244,9 +244,7 @@ function loadTrackDurations() {
    ========================================================= */
 
 function loadTrack(index) {
-  if (!tracks[index]) {
-    return;
-  }
+  if (!tracks[index]) return;
 
   currentTrackIndex = index;
 
@@ -260,25 +258,31 @@ function loadTrack(index) {
 
   progress.value = 0;
   progress.style.setProperty("--progress", "0%");
-
   currentTimeElement.textContent = "0:00";
   durationElement.textContent = "0:00";
 
   updateTrackRows();
-  updatePlayButton();
 }
 
-
 function playTrack(index) {
+  if (!tracks[index]) return;
+
+  const icon = playButton.querySelector("img");
+
   if (index !== currentTrackIndex) {
     loadTrack(index);
   }
 
+  // Show the intended playing state immediately.
+  if (icon) {
+    icon.src = icons.pause;
+  }
+
   audio.play().catch((error) => {
     console.error("Unable to play audio:", error);
+    updatePlayButton();
   });
 }
-
 
 /* =========================================================
    Transport Controls
