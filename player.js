@@ -205,17 +205,41 @@ function updateTrackRows() {
 }
 
 
-function updateTrackDuration() {
-  const rows = tracklist.querySelectorAll(".composer-track");
+/* =========================================================
+   Load Durations For All Tracks
+   ========================================================= */
 
-  rows.forEach((row, index) => {
-    const durationElement =
-      row.querySelector(".composer-track-duration");
+function loadTrackDurations() {
+  tracks.forEach((track, index) => {
+    const metadataAudio = new Audio();
 
-    if (index === currentTrackIndex) {
-      durationElement.textContent =
-        formatTime(audio.duration);
-    }
+    metadataAudio.preload = "metadata";
+
+    metadataAudio.addEventListener("loadedmetadata", () => {
+      const row = tracklist.querySelector(
+        `.composer-track[data-track-index="${index}"]`
+      );
+
+      if (!row) {
+        return;
+      }
+
+      const durationElement =
+        row.querySelector(".composer-track-duration");
+
+      if (durationElement) {
+        durationElement.textContent =
+          formatTime(metadataAudio.duration);
+      }
+    });
+
+    metadataAudio.addEventListener("error", () => {
+      console.warn(
+        `Unable to load duration for "${track.title}"`
+      );
+    });
+
+    metadataAudio.src = track.url;
   });
 }
 
@@ -332,7 +356,6 @@ audio.addEventListener("timeupdate", () => {
 
 audio.addEventListener("loadedmetadata", () => {
   updateDuration();
-  updateTrackDuration();
 });
 
 
@@ -373,5 +396,6 @@ audio.addEventListener("ended", () => {
 
 renderTracklist();
 loadTrack(0);
+loadTrackDurations();
 updateTrackRows();
 updatePlayButton();
