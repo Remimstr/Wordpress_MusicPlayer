@@ -1,477 +1,337 @@
-/* Global Variables */
-
+/* ========================================================= Global Variables ========================================================= */
 #composer-player,
 #composer-floating-player {
   --player-accent: #c87945;
   --player-accent-hover: #e09a63;
-
   --player-text: #f1f0eb;
   --player-text-muted: #a4a39e;
   --player-text-subtle: #777875;
-
   --player-bg: #0b0c0e;
   --player-bg-elevated: #15171a;
-
   --player-border: rgba(255, 255, 255, 0.09);
-
   --player-progress-background: rgba(255, 255, 255, 0.22);
-
   --player-font-family:
-    -apple-system,
-    BlinkMacSystemFont,
-    "Segoe UI",
-    Roboto,
-    Helvetica,
-    Arial,
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial,
     sans-serif;
-
   --player-height: 76px;
   --player-max-width: 1400px;
-
   --player-padding-x: 20px;
   --player-padding-y: 11px;
-
   --player-content-gap: 20px;
-
   --player-control-size: 38px;
   --player-play-size: 42px;
   --player-control-icon-size: 22px;
   --player-control-gap: 2px;
-
   --player-track-min-height: 82px;
   --player-track-padding-x: 20px;
   --player-track-padding-y: 12px;
-    --player-track-icon-column: 48px;
+  --player-track-icon-column: 48px;
   --player-track-duration-gap: 20px;
-
   --player-progress-height: 7px;
   --player-progress-track-height: 5px;
   --player-progress-thumb-size: 12px;
   --player-progress-time-gap: 14px;
-
   --player-heading-gap: 8px;
   --player-heading-margin-bottom: 8px;
   --player-time-gap: 5px;
-
   --player-mobile-height: 72px;
   --player-mobile-padding-x: 13px;
   --player-mobile-padding-y: 10px;
   --player-mobile-content-gap: 10px;
-
   --player-mobile-control-size: 32px;
   --player-mobile-play-size: 38px;
-
   --player-mobile-title-size: 14px;
   --player-mobile-style-size: 13px;
   --player-mobile-time-size: 12px;
 }
 
-
-/* =========================================================
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 Track List
-   ========================================================= */
-
+/* ========================================================= Track List=========================================================*/
 .composer-player {
   width: 100%;
   font-family: var(--player-font-family);
 }
-
 .composer-tracklist {
   width: 100%;
 }
-
 .composer-track {
   display: grid;
   grid-template-columns: var(--player-track-icon-column) minmax(0, 1fr) auto;
   align-items: center;
   gap: 0;
-
   min-height: var(--player-track-min-height);
   padding: var(--player-track-padding-y) var(--player-track-padding-x);
-
   border-bottom: 1px solid var(--player-border);
-
+  background: var(--player-bg-elevated);
   cursor: pointer;
-
   transition:
     background-color 160ms ease,
-      color 160ms ease;
+    color 160ms ease;
 }
-
 .composer-track:first-child {
   border-top: 1px solid var(--player-border);
 }
-
-.composer-track {
-  background: var(--player-bg-elevated);
-}
-
 .composer-track-play {
   width: var(--player-control-size);
-    height: var(--player-control-size);
+  height: var(--player-control-size);
   display: flex;
   align-items: center;
   justify-content: center;
-
   padding: 0;
   margin: 0;
-
   border: 0;
   background: transparent;
   cursor: pointer;
 }
-
 .composer-track-play img {
   width: var(--player-control-icon-size);
   height: var(--player-control-icon-size);
-
   display: block;
-
   object-fit: contain;
-    pointer-events: none;
-
+  pointer-events: none;
   filter: brightness(0) invert(1);
-
   opacity: 0.65;
-    transition:
-      opacity 160ms ease,
-      transform 160ms ease;
+  transition:
+    opacity 160ms ease,
+    transform 160ms ease;
 }
-
 .composer-track:hover .composer-track-play img {
   opacity: 1;
 }
-
 .composer-track.is-active .composer-track-play img {
   opacity: 1;
 }
-
 .composer-track-info {
   min-width: 0;
 }
-
 .composer-track-title {
   display: block;
   color: var(--player-text);
-
   font-family: var(--player-font-family);
   font-size: 16px;
-    font-weight: 500;
-    line-height: 1.3;
+  font-weight: 500;
+  line-height: 1.3;
 }
-
 .composer-track-style {
   display: block;
   margin-top: 4px;
-
   color: var(--player-text-muted);
-
   font-family: var(--player-font-family);
   font-size: 13px;
   line-height: 1.3;
 }
-
 .composer-track-duration {
   margin-left: var(--player-track-duration-gap);
-
   color: var(--player-text-muted);
-
   font-family: var(--player-font-family);
   font-size: 13px;
-    line-height: 1;
-
+  line-height: 1;
   white-space: nowrap;
 }
 
-
-/* Floating Player */
-
+/* ========================================================= Floating Player ========================================================= */
 #composer-floating-player {
   position: fixed;
   left: 0;
-    right: 0;
-    bottom: 0;
-
+  right: 0;
+  bottom: 0;
   z-index: 9999;
-  
-    height: var(--player-height);
-
+  height: var(--player-height);
   background: rgba(11, 12, 14, 0.97);
-
   border-top: 1px solid var(--player-border);
-
-  box-shadow:
-      0 -10px 30px rgba(0, 0, 0, 0.18);
-  
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-
+  box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.18);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   font-family: var(--player-font-family);
 }
-
 .composer-player-inner {
   width: min(100%, var(--player-max-width));
-    height: 100%;
-
-  margin: 0 auto;
-
+  height: 100%;
   display: flex;
   align-items: center;
-
   gap: var(--player-content-gap);
-
-  padding:
-    var(--player-padding-y)
-    var(--player-padding-x);
-box-sizing: border-box;
+  margin: 0 auto;
+  padding: var(--player-padding-y) var(--player-padding-x);
+  box-sizing: border-box;
 }
-
 .composer-player-controls {
   display: flex;
   align-items: center;
-
   gap: var(--player-control-gap);
   flex: 0 0 auto;
 }
-
 .composer-player-button {
   width: var(--player-control-size);
   height: var(--player-control-size);
   display: flex;
   align-items: center;
   justify-content: center;
-
   padding: 0;
   margin: 0;
-
   border: 0;
   border-radius: 50%;
-
   background: transparent;
-
   cursor: pointer;
-
   transition:
     background-color 160ms ease,
-      transform 160ms ease;
+    transform 160ms ease;
 }
-
 .composer-player-button:hover {
   background: rgba(255, 255, 255, 0.08);
 }
-
 .composer-player-button img {
-    width: var(--player-control-icon-size);
-      height: var(--player-control-icon-size);
+  width: var(--player-control-icon-size);
+  height: var(--player-control-icon-size);
+  display: block;
+  object-fit: contain;
+  pointer-events: none;
+  filter: brightness(0) invert(1);
+  opacity: 0.75;
+  transition: opacity 160ms ease;
+}
 
-    display: block;
-
-    object-fit: contain;
-      pointer-events: none;
-
-    filter: brightness(0) invert(1);
-
-    opacity: 0.75;
-    transition: opacity 160ms ease;
-  }
-  
-  .composer-player-button:hover img {
-    opacity: 1;
-  }
+.composer-player-button:hover img {
+  opacity: 1;
+}
 
 .composer-player-play {
   width: var(--player-play-size);
   height: var(--player-play-size);
-
 }
 
-
-/* =========================================================
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 Player Main Content
-   ========================================================= */
-
+/* ========================================================= Player Main Content=========================================================*/
 .composer-player-main {
   min-width: 0;
   flex: 1 1 auto;
 }
-
 .composer-player-heading {
   display: flex;
   align-items: baseline;
-
   min-width: 0;
   gap: var(--player-heading-gap);
-
   margin-bottom: var(--player-heading-margin-bottom);
-
-  white-space: nowrap;
   overflow: hidden;
+  white-space: nowrap;
 }
 
 .composer-player-title {
   min-width: 0;
-  
-    overflow: hidden;
-    text-overflow: ellipsis;
-
+  overflow: hidden;
   color: var(--player-text);
-
   font-family: var(--player-font-family);
   font-size: 15px;
-    font-weight: 500;
+  font-weight: 500;
   line-height: 1.2;
+  text-overflow: ellipsis;
 }
 
 .composer-player-style {
   min-width: 0;
-
   overflow: hidden;
-  text-overflow: ellipsis;
-
   color: var(--player-text-muted);
-
   font-family: var(--player-font-family);
   font-size: 13px;
-    font-weight: 400;
+  font-weight: 400;
   line-height: 1.2;
+  text-overflow: ellipsis;
 }
 
 .composer-player-progress-row {
   display: flex;
   align-items: center;
-
   gap: var(--player-progress-time-gap);
-
   width: 100%;
 }
-
 .composer-player-progress {
   flex: 1 1 auto;
-
   width: 100%;
   height: var(--player-progress-height);
-
   margin: 0;
-
   appearance: none;
   -webkit-appearance: none;
-
   background: transparent;
-
   cursor: pointer;
 }
 
-
+/* ========================================================= Progress Bar ========================================================= */
 /* Chrome / Safari */
-
 .composer-player-progress::-webkit-slider-runnable-track {
   width: 100%;
   height: var(--player-progress-track-height);
-
   border-radius: 999px;
-
-  background:
-      linear-gradient(to right,
-        var(--player-accent) 0%,
-        var(--player-accent) var(--progress, 0%),
-        var(--player-progress-background) var(--progress, 0%),
-        var(--player-progress-background) 100%);
+  background: linear-gradient(
+    to right,
+    var(--player-accent) 0%,
+    var(--player-accent) var(--progress, 0%),
+    var(--player-progress-background) var(--progress, 0%),
+    var(--player-progress-background) 100%
+  );
 }
-
 .composer-player-progress::-webkit-slider-thumb {
-  appearance: none;
-  -webkit-appearance: none;
   width: var(--player-progress-thumb-size);
   height: var(--player-progress-thumb-size);
-
-  margin-top:
-    calc(
-      (
-        var(--player-progress-track-height)
-        - var(--player-progress-thumb-size)
-      ) / 2
-    );
-
+  margin-top: calc(
+    (var(--player-progress-track-height) - var(--player-progress-thumb-size)) /
+      2
+  );
+  appearance: none;
+  -webkit-appearance: none;
   border: 0;
   border-radius: 50%;
-
   background: var(--player-accent);
-
   box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.25);
-
   transition: transform 120ms ease;
 }
-
 .composer-player-progress:hover::-webkit-slider-thumb {
   transform: scale(1.15);
 }
-
-
 /* Firefox */
-
 .composer-player-progress::-moz-range-track {
   width: 100%;
   height: var(--player-progress-track-height);
-
   border-radius: 999px;
-
   background: var(--player-progress-background);
 }
-
 .composer-player-progress::-moz-range-progress {
   height: var(--player-progress-track-height);
-
   border-radius: 999px;
-
   background: var(--player-accent);
 }
-
 .composer-player-progress::-moz-range-thumb {
   width: var(--player-progress-thumb-size);
   height: var(--player-progress-thumb-size);
-
   border: 0;
   border-radius: 50%;
-
   background: var(--player-accent);
-
   box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.25);
 }
-
+/* ========================================================= Time Display ========================================================= */
 .composer-player-time {
   display: flex;
   align-items: center;
-
   gap: var(--player-time-gap);
-
   flex: 0 0 auto;
   color: var(--player-text-muted);
-
   font-family: var(--player-font-family);
   font-size: 12px;
-    line-height: 1;
-
+  line-height: 1;
   white-space: nowrap;
 }
-
+/* ========================================================= Focus States ========================================================= */
 .composer-player-button:focus-visible,
 .composer-track-play:focus-visible,
 .composer-player-progress:focus-visible {
   outline: 2px solid var(--player-accent);
   outline-offset: 3px;
 }
-
+/* ========================================================= Mobile ========================================================= */
 @media (max-width: 640px) {
   #composer-floating-player {
-      height: var(--player-mobile-height);
-    }
+    height: var(--player-mobile-height);
+  }
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                .composer-player-inner {
+  .composer-player-inner {
     gap: var(--player-mobile-content-gap);
-
-    padding:
-      var(--player-mobile-padding-y)
-      var(--player-mobile-padding-x);
+    padding: var(--player-mobile-padding-y) var(--player-mobile-padding-x);
   }
 
   .composer-player-button {
@@ -482,11 +342,11 @@ box-sizing: border-box;
   .composer-player-play {
     width: var(--player-mobile-play-size);
     height: var(--player-mobile-play-size);
-  
+  }
 
-    .composer-player-button img {
-        width: 20px;
-        height: 20px;
+  .composer-player-button img {
+    width: 20px;
+    height: 20px;
   }
 
   .composer-player-heading {
@@ -508,9 +368,8 @@ box-sizing: border-box;
 
   .composer-track {
     grid-template-columns: 40px minmax(0, 1fr) auto;
-
     padding-left: 14px;
-      padding-right: 14px;
+    padding-right: 14px;
   }
 
   .composer-track-title {
@@ -524,5 +383,4 @@ box-sizing: border-box;
   .composer-track-duration {
     margin-left: 12px;
   }
-}
 }
