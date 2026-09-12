@@ -1,34 +1,34 @@
 name: Deploy Composer Player
 
 on:
-push:
-branches:
-- main
+  push:
+    branches:
+      - main
 
-workflow_dispatch:
+  workflow_dispatch:
 
 jobs:
-deploy:
-name: Deploy plugin to SiteGround
-runs-on: ubuntu-latest
+  deploy:
+    name: Deploy plugin to SiteGround
+    runs-on: ubuntu-latest
 
-steps:
-  - name: Check out repository
-    uses: actions/checkout@v4
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
 
-  - name: Prepare deployment files
-    run: |
-      mkdir deploy
-      cp remi-composer-player.php deploy/
-      cp -R assets deploy/
+      - name: Prepare deployment files
+        run: |
+          mkdir deploy
+          cp remi-composer-player.php deploy/
+          cp -R assets deploy/
 
-  - name: Deploy plugin via SFTP
-    uses: wlixcc/SFTP-Deploy-Action@v1.2.6
-    with:
-      server: ${{ secrets.SFTP_HOST }}
-      username: ${{ secrets.SFTP_USERNAME }}
-      port: ${{ secrets.SFTP_PORT }}
-      ssh_private_key: ${{ secrets.SFTP_PRIVATE_KEY }}
-      local_path: './deploy/*'
-      remote_path: ${{ secrets.SFTP_REMOTE_PATH }}
-      sftp_only: true
+      - name: Deploy plugin via SFTP
+        uses: wlixcc/SFTP-Deploy-Action@v1.2.6
+        with:
+          server: ${{ secrets.SFTP_HOST }}
+          username: ${{ secrets.SFTP_USERNAME }}
+          port: ${{ secrets.SFTP_PORT }}
+          ssh_private_key: ${{ secrets.SFTP_PRIVATE_KEY }}
+          local_path: './deploy/*'
+          remote_path: ${{ secrets.SFTP_REMOTE_PATH }}
+          sftp_only: true
