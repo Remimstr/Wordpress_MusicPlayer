@@ -257,7 +257,7 @@
   appearance: none;
   -webkit-appearance: none;
   background: transparent !important;
-  border: 0;
+  border: 0 !important;
   cursor: pointer;
 }
 
