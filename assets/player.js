@@ -1,6 +1,8 @@
 let tracks = [];
 
-fetch("tracks.json")
+const config = window.RemiComposerPlayer || {};
+
+fetch(config.tracksUrl)
   .then(response => {
     if (!response.ok) {
       throw new Error(`Failed to load tracks.json: ${response.status}`);
@@ -21,44 +23,20 @@ fetch("tracks.json")
     console.error("Could not load tracks:", error);
   });
 
+const icons = config.icons || {};
 
-const icons = {
-  play: "icons/play.svg",
-  pause: "icons/pause.svg",
-  skipBack: "icons/skip-back.svg",
-  skipForward: "icons/skip-forward.svg"
-};
-
-
-const player = document.querySelector("#composer-floating-player");
 const audio = document.querySelector(".composer-player-audio");
-
 const tracklist = document.querySelector(".composer-tracklist");
-
 const previousButton = document.querySelector(".composer-player-previous");
 const playButton = document.querySelector(".composer-player-play");
 const nextButton = document.querySelector(".composer-player-next");
-
 const playerTitle = document.querySelector(".composer-player-title");
 const playerStyle = document.querySelector(".composer-player-style");
-
 const progress = document.querySelector(".composer-player-progress");
-
-const currentTimeElement = document.querySelector(
-  ".composer-player-current-time"
-);
-
-const durationElement = document.querySelector(
-  ".composer-player-duration"
-);
-
+const currentTimeElement = document.querySelector(".composer-player-current-time");
+const durationElement = document.querySelector(".composer-player-duration");
 
 let currentTrackIndex = 0;
-
-
-/* =========================================================
-   Helpers
-   ========================================================= */
 
 function formatTime(seconds) {
   if (!Number.isFinite(seconds)) {
@@ -71,7 +49,6 @@ function formatTime(seconds) {
   return `${minutes}:${String(remainingSeconds).padStart(2, "0")}`;
 }
 
-
 function updateProgress() {
   if (!Number.isFinite(audio.duration) || audio.duration <= 0) {
     progress.value = 0;
@@ -80,20 +57,12 @@ function updateProgress() {
     return;
   }
 
-  const percentage =
-    (audio.currentTime / audio.duration) * 100;
+  const percentage = (audio.currentTime / audio.duration) * 100;
 
   progress.value = percentage;
-
-  progress.style.setProperty(
-    "--progress",
-    `${percentage}%`
-  );
-
-  currentTimeElement.textContent =
-    formatTime(audio.currentTime);
+  progress.style.setProperty("--progress", `${percentage}%`);
+  currentTimeElement.textContent = formatTime(audio.currentTime);
 }
-
 
 function updateDuration() {
   if (!Number.isFinite(audio.duration)) {
@@ -101,10 +70,8 @@ function updateDuration() {
     return;
   }
 
-  durationElement.textContent =
-    formatTime(audio.duration);
+  durationElement.textContent = formatTime(audio.duration);
 }
-
 
 function updatePlayButton() {
   const icon = playButton.querySelector("img");
@@ -121,11 +88,6 @@ function updatePlayButton() {
     playButton.setAttribute("aria-label", "Pause");
   }
 }
-
-
-/* =========================================================
-   Track List
-   ========================================================= */
 
 function renderTracklist() {
   tracklist.innerHTML = "";
@@ -176,20 +138,14 @@ function renderTracklist() {
   });
 }
 
-
 function updateTrackRows() {
   const rows = tracklist.querySelectorAll(".composer-track");
 
   rows.forEach((row, index) => {
     const icon = row.querySelector(".composer-track-play img");
+    const isActive = index === currentTrackIndex;
 
-    const isActive =
-      index === currentTrackIndex;
-
-    row.classList.toggle(
-      "is-active",
-      isActive
-    );
+    row.classList.toggle("is-active", isActive);
 
     if (isActive && !audio.paused) {
       icon.src = icons.pause;
@@ -198,11 +154,6 @@ function updateTrackRows() {
     }
   });
 }
-
-
-/* =========================================================
-   Load Durations For All Tracks
-   ========================================================= */
 
 function loadTrackDurations() {
   tracks.forEach((track, index) => {
@@ -219,29 +170,20 @@ function loadTrackDurations() {
         return;
       }
 
-      const durationElement =
-        row.querySelector(".composer-track-duration");
+      const durationElement = row.querySelector(".composer-track-duration");
 
       if (durationElement) {
-        durationElement.textContent =
-          formatTime(metadataAudio.duration);
+        durationElement.textContent = formatTime(metadataAudio.duration);
       }
     });
 
     metadataAudio.addEventListener("error", () => {
-      console.warn(
-        `Unable to load duration for "${track.title}"`
-      );
+      console.warn(`Unable to load duration for "${track.title}"`);
     });
 
     metadataAudio.src = track.url;
   });
 }
-
-
-/* =========================================================
-   Loading / Playback
-   ========================================================= */
 
 function loadTrack(index) {
   if (!tracks[index]) return;
@@ -273,31 +215,26 @@ function playTrack(index) {
     loadTrack(index);
   }
 
-  // Show the intended playing state immediately.
   if (icon) {
     icon.src = icons.pause;
   }
 
-  audio.play().catch((error) => {
+  audio.play().catch(error => {
     console.error("Unable to play audio:", error);
     updatePlayButton();
+    updateTrackRows();
   });
 }
 
-/* =========================================================
-   Transport Controls
-   ========================================================= */
-
 playButton.addEventListener("click", () => {
   if (audio.paused) {
-    audio.play().catch((error) => {
+    audio.play().catch(error => {
       console.error("Unable to play audio:", error);
     });
   } else {
     audio.pause();
   }
 });
-
 
 previousButton.addEventListener("click", () => {
   const previousIndex =
@@ -308,7 +245,6 @@ previousButton.addEventListener("click", () => {
   playTrack(previousIndex);
 });
 
-
 nextButton.addEventListener("click", () => {
   const nextIndex =
     currentTrackIndex === tracks.length - 1
@@ -318,57 +254,36 @@ nextButton.addEventListener("click", () => {
   playTrack(nextIndex);
 });
 
-
-/* =========================================================
-   Seeking
-   ========================================================= */
-
 progress.addEventListener("input", () => {
   if (!Number.isFinite(audio.duration)) {
     return;
   }
 
-  const percentage =
-    Number(progress.value) / 100;
+  const percentage = Number(progress.value) / 100;
 
-  audio.currentTime =
-    percentage * audio.duration;
+  audio.currentTime = percentage * audio.duration;
 
-  progress.style.setProperty(
-    "--progress",
-    `${progress.value}%`
-  );
-
-  currentTimeElement.textContent =
-    formatTime(audio.currentTime);
+  progress.style.setProperty("--progress", `${progress.value}%`);
+  currentTimeElement.textContent = formatTime(audio.currentTime);
 });
-
-
-/* =========================================================
-   Audio Events
-   ========================================================= */
 
 audio.addEventListener("timeupdate", () => {
   updateProgress();
 });
 
-
 audio.addEventListener("loadedmetadata", () => {
   updateDuration();
 });
-
 
 audio.addEventListener("play", () => {
   updatePlayButton();
   updateTrackRows();
 });
 
-
 audio.addEventListener("pause", () => {
   updatePlayButton();
   updateTrackRows();
 });
-
 
 audio.addEventListener("ended", () => {
   if (currentTrackIndex === tracks.length - 1) {
@@ -376,7 +291,6 @@ audio.addEventListener("ended", () => {
 
     progress.value = 0;
     progress.style.setProperty("--progress", "0%");
-
     currentTimeElement.textContent = "0:00";
 
     updatePlayButton();
