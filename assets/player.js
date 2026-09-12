@@ -1,28 +1,6 @@
 let tracks = [];
 
 const config = window.RemiComposerPlayer || {};
-
-fetch(config.tracksUrl)
-  .then(response => {
-    if (!response.ok) {
-      throw new Error(`Failed to load tracks.json: ${response.status}`);
-    }
-
-    return response.json();
-  })
-  .then(data => {
-    tracks = data;
-
-    renderTracklist();
-    loadTrack(0);
-    loadTrackDurations();
-    updateTrackRows();
-    updatePlayButton();
-  })
-  .catch(error => {
-    console.error("Could not load tracks:", error);
-  });
-
 const icons = config.icons || {};
 
 const audio = document.querySelector(".composer-player-audio");
@@ -33,10 +11,30 @@ const nextButton = document.querySelector(".composer-player-next");
 const playerTitle = document.querySelector(".composer-player-title");
 const playerStyle = document.querySelector(".composer-player-style");
 const progress = document.querySelector(".composer-player-progress");
-const currentTimeElement = document.querySelector(".composer-player-current-time");
-const durationElement = document.querySelector(".composer-player-duration");
+const currentTimeElement = document.querySelector(
+  ".composer-player-current-time"
+);
+const durationElement = document.querySelector(
+  ".composer-player-duration"
+);
 
 let currentTrackIndex = 0;
+
+function setButtonIcon(button, src) {
+  const icon = button.querySelector("img");
+
+  if (!icon) {
+    return;
+  }
+
+  icon.src = src;
+}
+
+function initializePlayerIcons() {
+  setButtonIcon(previousButton, icons.skipBack);
+  setButtonIcon(playButton, icons.play);
+  setButtonIcon(nextButton, icons.skipForward);
+}
 
 function formatTime(seconds) {
   if (!Number.isFinite(seconds)) {
@@ -81,10 +79,10 @@ function updatePlayButton() {
   }
 
   if (audio.paused) {
-    icon.src = icons.play;
+    setButtonIcon(playButton, icons.play);
     playButton.setAttribute("aria-label", "Play");
   } else {
-    icon.src = icons.pause;
+    setButtonIcon(playButton, icons.pause);
     playButton.setAttribute("aria-label", "Pause");
   }
 }
@@ -147,6 +145,10 @@ function updateTrackRows() {
 
     row.classList.toggle("is-active", isActive);
 
+    if (!icon) {
+      return;
+    }
+
     if (isActive && !audio.paused) {
       icon.src = icons.pause;
     } else {
@@ -170,7 +172,9 @@ function loadTrackDurations() {
         return;
       }
 
-      const durationElement = row.querySelector(".composer-track-duration");
+      const durationElement = row.querySelector(
+        ".composer-track-duration"
+      );
 
       if (durationElement) {
         durationElement.textContent = formatTime(metadataAudio.duration);
@@ -186,7 +190,9 @@ function loadTrackDurations() {
 }
 
 function loadTrack(index) {
-  if (!tracks[index]) return;
+  if (!tracks[index]) {
+    return;
+  }
 
   currentTrackIndex = index;
 
@@ -207,28 +213,52 @@ function loadTrack(index) {
 }
 
 function playTrack(index) {
-  if (!tracks[index]) return;
-
-  const icon = playButton.querySelector("img");
+  if (!tracks[index]) {
+    return;
+  }
 
   if (index !== currentTrackIndex) {
     loadTrack(index);
   }
 
-  if (icon) {
-    icon.src = icons.pause;
-  }
+  // Set the icon immediately so changing tracks doesn't
+  // briefly show the play icon before the audio "play" event fires.
+  setButtonIcon(playButton, icons.pause);
+  playButton.setAttribute("aria-label", "Pause");
 
-  audio.play().catch(error => {
+  audio.play().catch((error) => {
     console.error("Unable to play audio:", error);
     updatePlayButton();
     updateTrackRows();
   });
 }
 
+initializePlayerIcons();
+
+fetch(config.tracksUrl)
+  .then((response) => {
+    if (!response.ok) {
+      throw new Error(`Failed to load tracks.json: ${response.status}`);
+    }
+
+    return response.json();
+  })
+  .then((data) => {
+    tracks = data;
+
+    renderTracklist();
+    loadTrack(0);
+    loadTrackDurations();
+    updateTrackRows();
+    updatePlayButton();
+  })
+  .catch((error) => {
+    console.error("Could not load tracks:", error);
+  });
+
 playButton.addEventListener("click", () => {
   if (audio.paused) {
-    audio.play().catch(error => {
+    audio.play().catch((error) => {
       console.error("Unable to play audio:", error);
     });
   } else {
