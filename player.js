@@ -1,30 +1,25 @@
-const tracks = [
-  {
-    title: "Flidais' Grove",
-    style: "Ambient · Orchestral",
-    url: "https://remimarchand.ca/wp-content/uploads/2026/09/Flidais-Grove-Master-1.mp3"
-  },
-  {
-    title: "Facing the Gods' Wrath",
-    style: "Cinematic · Action",
-    url: "https://remimarchand.ca/wp-content/uploads/2026/09/Facing-the-Gods-Wrath-Master-1.mp3"
-  },
-  {
-    title: "Fall Game",
-    style: "8-bit · Catchy",
-    url: "https://remimarchand.ca/wp-content/uploads/2026/09/Fall-Game-Master.mp3"
-  },
-  {
-    title: "Sewer Crawl",
-    style: "Ambient · Tension",
-    url: "https://remimarchand.ca/wp-content/uploads/2026/09/12-MCA-Brief-Ambient_Tension-Master-FO-1.mp3"
-  },
-  {
-    title: "Wobbly Wacoon",
-    style: "Whimsical · Playful",
-    url: "https://remimarchand.ca/wp-content/uploads/2026/09/Wobbly-Wacoon-Master.mp3"
-  }
-];
+let tracks = [];
+
+fetch("tracks.json")
+  .then(response => {
+    if (!response.ok) {
+      throw new Error(`Failed to load tracks.json: ${response.status}`);
+    }
+
+    return response.json();
+  })
+  .then(data => {
+    tracks = data;
+
+    renderTracklist();
+    loadTrack(0);
+    loadTrackDurations();
+    updateTrackRows();
+    updatePlayButton();
+  })
+  .catch(error => {
+    console.error("Could not load tracks:", error);
+  });
 
 
 const icons = {
@@ -388,14 +383,3 @@ audio.addEventListener("ended", () => {
 
   playTrack(currentTrackIndex + 1);
 });
-
-
-/* =========================================================
-   Initialization
-   ========================================================= */
-
-renderTracklist();
-loadTrack(0);
-loadTrackDurations();
-updateTrackRows();
-updatePlayButton();
