@@ -3,9 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <title>Remi Marchand — Composer</title>
-
+  <title>Composer Player</title>
   <link rel="stylesheet" href="player.css">
 </head>
 
@@ -17,14 +15,12 @@
     </section>
   </main>
 
-  <div class="composer-floating-player" aria-label="Music player">
-
+  <div class="composer-floating-player">
     <div class="composer-player-inner">
 
-      <div class="composer-player-transport">
-
+      <div class="composer-player-controls">
         <button
-          class="composer-player-button composer-player-prev"
+          class="composer-player-button composer-player-previous"
           type="button"
           aria-label="Previous track"
         >
@@ -46,43 +42,38 @@
         >
           <img src="icons/skip-forward.svg" alt="">
         </button>
-
       </div>
 
       <div class="composer-player-main">
 
         <div class="composer-player-heading">
-          <span class="composer-player-title">Flidais' Grove</span>
-          <span class="composer-player-separator">·</span>
-          <span class="composer-player-style">Ambient · Orchestral</span>
+          <span class="composer-player-title"></span>
+          <span class="composer-player-style"></span>
         </div>
 
         <div class="composer-player-progress-row">
-
-          <div class="composer-floating-progress">
-            <input
-              class="composer-progress"
-              type="range"
-              min="0"
-              max="100"
-              value="0"
-              step="0.1"
-              aria-label="Seek through track"
-            >
-          </div>
+          <input
+            class="composer-player-progress"
+            type="range"
+            min="0"
+            max="100"
+            value="0"
+            step="0.1"
+            aria-label="Track progress"
+          >
 
           <div class="composer-player-time">
-            <span class="composer-current-time">0:00</span>
-            <span class="composer-time-separator">/</span>
-            <span class="composer-duration">0:00</span>
+            <span class="composer-player-current-time">0:00</span>
+            <span>/</span>
+            <span class="composer-player-duration">0:00</span>
           </div>
-
         </div>
 
       </div>
 
     </div>
 
+    <audio class="composer-player-audio" preload="metadata"></audio>
   </div>
 
   <script src="player.js"></script>
