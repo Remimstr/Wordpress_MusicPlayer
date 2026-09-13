@@ -12,7 +12,7 @@ class Composer_Tracks {
 		add_action( 'save_post_composer_track', array( $this, 'save_track' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_assets' ) );
 		add_action( 'admin_menu', array( $this, 'add_reorder_page' ) );
-		add_action( 'wp_ajax_composer_save_track_order', array( $this, 'save_track_order' ) );
+		add_action( 'wp_ajax_save_track_order', array( $this, 'save_track_order' ) );
 		add_filter( 'wp_insert_post_data', array( $this, 'validate_track_title' ), 10, 2 );
 		add_action( 'admin_notices', array( $this, 'show_validation_errors' ) );
 	}
