@@ -2,6 +2,8 @@
 
 class TestTrackReorder extends WP_UnitTestCase {
 
+	private $reorderer;
+
 	public function setUp(): void {
 		parent::setUp();
 
@@ -12,58 +14,41 @@ class TestTrackReorder extends WP_UnitTestCase {
 		);
 
 		wp_set_current_user( $user_id );
+
+		$this->reorderer = new Composer_Track_Reorder();
 	}
 
-	public function tearDown(): void {
-		unset( $_POST['nonce'] );
-		unset( $_POST['order'] );
+	private function create_track( $title ) {
+		$track_id = self::factory()->post->create(
+			array(
+				'post_type'   => 'composer_track',
+				'post_status' => 'publish',
+				'post_title'  => $title,
+			)
+		);
 
-		parent::tearDown();
-	}
+		delete_post_meta(
+			$track_id,
+			'_composer_track_order'
+		);
 
-	private function save_order( $order ) {
-		$_POST['nonce'] = wp_create_nonce( 'composer_track_order' );
-		$_POST['order'] = wp_json_encode( $order );
-
-		try {
-			do_action( 'wp_ajax_composer_save_track_order' );
-		} catch ( WPAjaxDieStopException $exception ) {
-			// Expected: wp_send_json_* ends the AJAX request.
-		}
+		return $track_id;
 	}
 
 	public function test_reorder_saves_submitted_order() {
-		$track_a = self::factory()->post->create(
-			array(
-				'post_type'   => 'composer_track',
-				'post_status' => 'publish',
-				'post_title'  => 'Track A',
-			)
-		);
+		$track_a = $this->create_track( 'Track A' );
+		$track_b = $this->create_track( 'Track B' );
+		$track_c = $this->create_track( 'Track C' );
 
-		$track_b = self::factory()->post->create(
-			array(
-				'post_type'   => 'composer_track',
-				'post_status' => 'publish',
-				'post_title'  => 'Track B',
-			)
-		);
-
-		$track_c = self::factory()->post->create(
-			array(
-				'post_type'   => 'composer_track',
-				'post_status' => 'publish',
-				'post_title'  => 'Track C',
-			)
-		);
-
-		$this->save_order(
+		$updated = $this->reorderer->reorder_tracks(
 			array(
 				(string) $track_c,
 				(string) $track_a,
 				(string) $track_b,
 			)
 		);
+
+		$this->assertSame( 3, $updated );
 
 		$this->assertSame(
 			0,
@@ -94,20 +79,22 @@ class TestTrackReorder extends WP_UnitTestCase {
 	}
 
 	public function test_reorder_ignores_invalid_track_ids() {
-		$track = self::factory()->post->create(
+		$track = $this->create_track( 'Track' );
+
+		$invalid_track_id = PHP_INT_MAX;
+
+		$this->assertNull(
+			get_post( $invalid_track_id )
+		);
+
+		$updated = $this->reorderer->reorder_tracks(
 			array(
-				'post_type'   => 'composer_track',
-				'post_status' => 'publish',
-				'post_title'  => 'Track',
+				(string) $track,
+				(string) $invalid_track_id,
 			)
 		);
 
-		$this->save_order(
-			array(
-				(string) $track,
-				'999999',
-			)
-		);
+		$this->assertSame( 1, $updated );
 
 		$this->assertSame(
 			0,
@@ -117,16 +104,19 @@ class TestTrackReorder extends WP_UnitTestCase {
 				true
 			)
 		);
+
+		$this->assertSame(
+			'',
+			get_post_meta(
+				$invalid_track_id,
+				'_composer_track_order',
+				true
+			)
+		);
 	}
 
 	public function test_reorder_ignores_non_composer_posts() {
-		$track = self::factory()->post->create(
-			array(
-				'post_type'   => 'composer_track',
-				'post_status' => 'publish',
-				'post_title'  => 'Track',
-			)
-		);
+		$track = $this->create_track( 'Track' );
 
 		$regular_post = self::factory()->post->create(
 			array(
@@ -136,12 +126,19 @@ class TestTrackReorder extends WP_UnitTestCase {
 			)
 		);
 
-		$this->save_order(
+		delete_post_meta(
+			$regular_post,
+			'_composer_track_order'
+		);
+
+		$updated = $this->reorderer->reorder_tracks(
 			array(
 				(string) $regular_post,
 				(string) $track,
 			)
 		);
+
+		$this->assertSame( 1, $updated );
 
 		$this->assertSame(
 			'',

@@ -472,15 +472,6 @@ class Composer_Tracks {
 			'nonce'
 		);
 
-		if ( ! current_user_can( 'edit_posts' ) ) {
-			wp_send_json_error(
-				array(
-					'message' => 'You do not have permission to reorder tracks.',
-				),
-				403
-			);
-		}
-
 		$order = isset( $_POST['order'] )
 			? json_decode(
 				wp_unslash( $_POST['order'] ),
@@ -497,27 +488,18 @@ class Composer_Tracks {
 			);
 		}
 
-		foreach ( $order as $position => $track_id ) {
-			$track_id = absint( $track_id );
+		$reorderer = new Composer_Track_Reorder();
 
-			if ( ! $track_id ) {
-				continue;
-			}
-
-			if ( 'composer_track' !== get_post_type( $track_id ) ) {
-				continue;
-			}
-
-			if ( ! current_user_can( 'edit_post', $track_id ) ) {
-				continue;
-			}
-
-			update_post_meta(
-				$track_id,
-				'_composer_track_order',
-				$position
+		if ( ! current_user_can( 'edit_posts' ) ) {
+			wp_send_json_error(
+				array(
+					'message' => 'You do not have permission to reorder tracks.',
+				),
+				403
 			);
 		}
+
+		$reorderer->reorder_tracks( $order );
 
 		wp_send_json_success(
 			array(

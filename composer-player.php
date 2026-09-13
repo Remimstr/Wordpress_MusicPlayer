@@ -13,5 +13,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 define( 'COMPOSER_PLAYER_VERSION', '1.0.1' );
 
 require_once __DIR__ . '/admin/class-composer-tracks.php';
+require_once __DIR__ . '/admin/class-composer-track-reorder.php';
 require_once __DIR__ . '/frontend/class-composer-player.php';
 require_once __DIR__ . '/frontend/class-composer-rest-api.php';
