@@ -1,4 +1,5 @@
 import {
+  formatStyle,
   formatTime,
   getPreviousTrackIndex,
   getNextTrackIndex,
@@ -157,7 +158,7 @@ function loadTrack(index) {
   audio.load();
 
   playerTitle.textContent = track.title;
-  playerStyle.textContent = `· ${track.style}`;
+  playerStyle.textContent = `—\u00A0\u00A0${formatStyle(track.style)}`;
 
   progress.value = 0;
   progress.style.setProperty("--progress", "0%");

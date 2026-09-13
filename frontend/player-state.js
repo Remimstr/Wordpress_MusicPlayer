@@ -39,3 +39,10 @@ export function getProgressPercentage(currentTime, duration) {
 
   return (currentTime / duration) * 100;
 }
+
+export function formatStyle(style) {
+  return style
+    .split(",")
+    .map((value) => value.trim())
+    .join(" · ");
+}

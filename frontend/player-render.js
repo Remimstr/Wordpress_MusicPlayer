@@ -1,3 +1,5 @@
+import { formatStyle } from "./player-state.js";
+
 export function renderTracklist(
   tracklist,
   tracks,
@@ -29,7 +31,7 @@ export function renderTracklist(
         </span>
 
         <span class="composer-track-style">
-          ${track.style}
+          ${formatStyle(track.style)}
         </span>
       </div>
 

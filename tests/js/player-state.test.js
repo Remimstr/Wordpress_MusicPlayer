@@ -72,3 +72,20 @@ describe("getProgressPercentage", () => {
     expect(getProgressPercentage(30, Infinity)).toBe(0);
   });
 });
+
+describe("formatStyle", () => {
+  it("replaces commas with separators", () => {
+    expect(formatStyle("Cinematic, Orchestral, Fantasy"))
+      .toBe("Cinematic · Orchestral · Fantasy");
+  });
+
+  it("trims whitespace around values", () => {
+    expect(formatStyle("Cinematic,Orchestral, Fantasy"))
+      .toBe("Cinematic · Orchestral · Fantasy");
+  });
+
+  it("handles a single value", () => {
+    expect(formatStyle("Cinematic"))
+      .toBe("Cinematic");
+  });
+});
