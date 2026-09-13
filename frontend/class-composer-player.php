@@ -117,7 +117,22 @@ class Composer_Player {
 	}
 
 	public function render_shortcode() {
-		return '<div class="composer-player"><div class="composer-tracklist" aria-label="Music"></div></div>';
+		return '
+			<div class="composer-player">
+				<div class="composer-player-artwork" hidden>
+					<img
+						class="composer-player-artwork-image"
+						src=""
+						alt=""
+					>
+				</div>
+
+				<div
+					class="composer-tracklist"
+					aria-label="Music"
+				></div>
+			</div>
+		';
 	}
 }
 

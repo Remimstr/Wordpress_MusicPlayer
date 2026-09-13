@@ -14,6 +14,11 @@ const icons = config.icons || {};
 
 const audio = document.querySelector(".composer-player-audio");
 const tracklist = document.querySelector(".composer-tracklist");
+const player = document.querySelector(".composer-player");
+const artwork = document.querySelector(".composer-player-artwork");
+const artworkImage = document.querySelector(
+  ".composer-player-artwork-image"
+);
 const previousButton = document.querySelector(".composer-player-previous");
 const playButton = document.querySelector(".composer-player-play");
 const nextButton = document.querySelector(".composer-player-next");
@@ -113,6 +118,25 @@ function updateTrackRows() {
   });
 }
 
+function updateArtwork(track) {
+  if (!artwork || !artworkImage || !player) {
+    return;
+  }
+
+  if (!track.image || !track.image.url) {
+    artworkImage.removeAttribute("src");
+    artworkImage.alt = "";
+    artwork.hidden = true;
+    player.classList.remove("has-artwork");
+    return;
+  }
+
+  artworkImage.src = track.image.url;
+  artworkImage.alt = track.image.alt || "";
+  artwork.hidden = false;
+  player.classList.add("has-artwork");
+}
+
 function loadTrackDurations() {
   tracks.forEach((track, index) => {
     const metadataAudio = new Audio();
@@ -159,6 +183,8 @@ function loadTrack(index) {
 
   playerTitle.textContent = track.title;
   playerStyle.textContent = `—\u00A0\u00A0${formatStyle(track.style)}`;
+
+  updateArtwork(track);
 
   progress.value = 0;
   progress.style.setProperty("--progress", "0%");
@@ -222,10 +248,11 @@ export function initializePlayer() {
         tracklist,
         tracks,
         icons,
-        currentTrackIndex,
+        () => currentTrackIndex,
         audio,
         playTrack
       );
+
       loadTrack(0);
       loadTrackDurations();
       updateTrackRows();

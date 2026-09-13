@@ -4,7 +4,7 @@ export function renderTracklist(
   tracklist,
   tracks,
   icons,
-  currentTrackIndex,
+  getCurrentTrackIndex,
   audio,
   playTrack
 ) {
@@ -41,6 +41,8 @@ export function renderTracklist(
     `;
 
     row.addEventListener("click", () => {
+      const currentTrackIndex = getCurrentTrackIndex();
+
       if (index === currentTrackIndex) {
         if (audio.paused) {
           audio.play();

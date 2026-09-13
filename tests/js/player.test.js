@@ -137,6 +137,70 @@ describe("player", () => {
     expect(audio.play).toHaveBeenCalled();
   });
 
+  it("pauses the player from a non-first track", async () => {
+    globalThis.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve(tracks),
+    });
+
+    await import("../../frontend/player.js");
+
+    await vi.waitFor(() => {
+      expect(
+        document.querySelector(".composer-player-title").textContent
+      ).toBe("Track One");
+    });
+
+    const audio = document.querySelector(".composer-player-audio");
+    const rows = document.querySelectorAll(".composer-track");
+    const playButton = document.querySelector(".composer-player-play");
+
+    rows[1].click();
+
+    expect(audio.src).toContain("/track-two.mp3");
+
+    Object.defineProperty(audio, "paused", {
+      configurable: true,
+      value: false,
+    });
+
+    playButton.click();
+
+    expect(audio.pause).toHaveBeenCalled();
+  });
+
+  it("plays the first track when it is selected after another track", async () => {
+    globalThis.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve(tracks),
+    });
+
+    await import("../../frontend/player.js");
+
+    await vi.waitFor(() => {
+      expect(
+        document.querySelector(".composer-player-title").textContent
+      ).toBe("Track One");
+    });
+
+    const audio = document.querySelector(".composer-player-audio");
+    const rows = document.querySelectorAll(".composer-track");
+
+    rows[1].click();
+
+    expect(audio.src).toContain("/track-two.mp3");
+
+    rows[0].click();
+
+    expect(audio.src).toContain("/track-one.mp3");
+
+    expect(
+      document.querySelector(".composer-player-title").textContent
+    ).toBe("Track One");
+
+    expect(audio.play).toHaveBeenCalled();
+  });
+
   it("toggles play and pause from the play button", async () => {
     globalThis.fetch = vi.fn().mockResolvedValue({
       ok: true,
@@ -167,6 +231,40 @@ describe("player", () => {
 
     expect(audio.pause).toHaveBeenCalled();
   });
+
+
+    it("pauses the player from a non-first track", async () => {
+    globalThis.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve(tracks),
+    });
+
+    await import("../../frontend/player.js");
+
+    await vi.waitFor(() => {
+      expect(
+        document.querySelector(".composer-player-title").textContent
+      ).toBe("Track One");
+    });
+
+    const audio = document.querySelector(".composer-player-audio");
+    const rows = document.querySelectorAll(".composer-track");
+    const playButton = document.querySelector(".composer-player-play");
+
+    rows[1].click();
+
+    expect(audio.src).toContain("/track-two.mp3");
+
+    Object.defineProperty(audio, "paused", {
+      configurable: true,
+      value: false,
+    });
+
+    playButton.click();
+
+    expect(audio.pause).toHaveBeenCalled();
+  });
+
 
   it("navigates between tracks with previous and next buttons", async () => {
     globalThis.fetch = vi.fn().mockResolvedValue({
