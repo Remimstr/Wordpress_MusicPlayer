@@ -443,4 +443,164 @@ class TestTrackValidation extends WP_UnitTestCase {
 		unset( $_POST['composer_track_style'] );
 		unset( $_POST['composer_track_audio'] );
 	}
+
+	public function test_new_track_with_valid_image_saves_image_metadata() {
+		$post_id = self::factory()->post->create(
+			array(
+				'post_type'   => 'composer_track',
+				'post_status' => 'draft',
+				'post_title'  => 'New Track',
+			)
+		);
+
+		$image_id = self::factory()->attachment->create(
+			array(
+				'post_mime_type' => 'image/jpeg',
+				'post_title'     => 'Test Image',
+			)
+		);
+
+		$_POST['composer_track_details_nonce'] = wp_create_nonce(
+			'composer_track_details'
+		);
+
+		$_POST['composer_track_style'] = 'Cinematic';
+		$_POST['composer_track_audio'] = '789';
+		$_POST['composer_track_image'] = $image_id;
+		$_POST['composer_track_image_caption'] = 'Artwork by Jane Doe';
+
+		do_action( 'save_post_composer_track', $post_id );
+
+		$this->assertSame(
+			(string) $image_id,
+			get_post_meta(
+				$post_id,
+				'_composer_track_image',
+				true
+			)
+		);
+
+		$this->assertSame(
+			'Artwork by Jane Doe',
+			get_post_meta(
+				$post_id,
+				'_composer_track_image_caption',
+				true
+			)
+		);
+
+		unset( $_POST['composer_track_details_nonce'] );
+		unset( $_POST['composer_track_style'] );
+		unset( $_POST['composer_track_audio'] );
+		unset( $_POST['composer_track_image'] );
+		unset( $_POST['composer_track_image_caption'] );
+	}
+
+	public function test_existing_track_can_remove_image_metadata() {
+		$post_id = self::factory()->post->create(
+			array(
+				'post_type'   => 'composer_track',
+				'post_status' => 'draft',
+				'post_title'  => 'Existing Track',
+			)
+		);
+
+		$image_id = self::factory()->attachment->create(
+			array(
+				'post_mime_type' => 'image/jpeg',
+				'post_title'     => 'Test Image',
+			)
+		);
+
+		update_post_meta(
+			$post_id,
+			'_composer_track_image',
+			$image_id
+		);
+
+		update_post_meta(
+			$post_id,
+			'_composer_track_image_caption',
+			'Old caption'
+		);
+
+		$_POST['composer_track_details_nonce'] = wp_create_nonce(
+			'composer_track_details'
+		);
+
+		$_POST['composer_track_style'] = 'Cinematic';
+		$_POST['composer_track_audio'] = '789';
+		$_POST['composer_track_image'] = '';
+		$_POST['composer_track_image_caption'] = '';
+
+		do_action( 'save_post_composer_track', $post_id );
+
+		$this->assertSame(
+			'0',
+			get_post_meta(
+				$post_id,
+				'_composer_track_image',
+				true
+			)
+		);
+
+		$this->assertSame(
+			'',
+			get_post_meta(
+				$post_id,
+				'_composer_track_image_caption',
+				true
+			)
+		);
+
+		unset( $_POST['composer_track_details_nonce'] );
+		unset( $_POST['composer_track_style'] );
+		unset( $_POST['composer_track_audio'] );
+		unset( $_POST['composer_track_image'] );
+		unset( $_POST['composer_track_image_caption'] );
+	}
+
+	public function test_image_caption_is_sanitized() {
+		$post_id = self::factory()->post->create(
+			array(
+				'post_type'   => 'composer_track',
+				'post_status' => 'draft',
+				'post_title'  => 'New Track',
+			)
+		);
+
+		$image_id = self::factory()->attachment->create(
+			array(
+				'post_mime_type' => 'image/jpeg',
+				'post_title'     => 'Test Image',
+			)
+		);
+
+		$_POST['composer_track_details_nonce'] = wp_create_nonce(
+			'composer_track_details'
+		);
+
+		$_POST['composer_track_style'] = 'Cinematic';
+		$_POST['composer_track_audio'] = '789';
+		$_POST['composer_track_image'] = $image_id;
+		$_POST['composer_track_image_caption'] =
+			'Artwork by<script>alert("xss")</script> Jane';
+
+		do_action( 'save_post_composer_track', $post_id );
+
+		$this->assertSame(
+			'Artwork by Jane',
+			get_post_meta(
+				$post_id,
+				'_composer_track_image_caption',
+				true
+			)
+		);
+
+		unset( $_POST['composer_track_details_nonce'] );
+		unset( $_POST['composer_track_style'] );
+		unset( $_POST['composer_track_audio'] );
+		unset( $_POST['composer_track_image'] );
+		unset( $_POST['composer_track_image_caption'] );
+	}
 }

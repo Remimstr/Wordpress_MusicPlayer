@@ -62,6 +62,8 @@ class Composer_Tracks {
 	public function render_track_details( $post ) {
 		$style            = get_post_meta( $post->ID, '_composer_track_style', true );
 		$audio_attachment = get_post_meta( $post->ID, '_composer_track_audio', true );
+		$image_attachment = get_post_meta( $post->ID, '_composer_track_image', true );
+	    $image_caption    = get_post_meta( $post->ID, '_composer_track_image_caption', true );
 
 		wp_nonce_field(
 			'composer_track_details',
@@ -127,6 +129,66 @@ class Composer_Tracks {
 				);
 			}
 			?>
+		</p>
+
+				<p>
+			<label>
+				<strong>Image</strong>
+			</label>
+		</p>
+
+		<p>
+			<input
+				type="hidden"
+				id="composer_track_image"
+				name="composer_track_image"
+				value="<?php echo esc_attr( $image_attachment ); ?>"
+			>
+
+			<button
+				type="button"
+				class="button composer-track-select-image"
+			>
+				Select Image
+			</button>
+
+			<button
+				type="button"
+				class="button composer-track-remove-image"
+				<?php echo $image_attachment ? '' : 'hidden'; ?>
+			>
+				Remove
+			</button>
+		</p>
+
+		<p
+			id="composer-track-image-preview"
+			<?php echo $image_attachment ? '' : 'hidden'; ?>
+		>
+			<?php
+			if ( $image_attachment ) {
+				echo wp_get_attachment_image(
+					$image_attachment,
+					'medium'
+				);
+			}
+			?>
+		</p>
+
+		<p>
+			<label for="composer_track_image_caption">
+				<strong>Image Caption / Credits</strong>
+			</label>
+		</p>
+
+		<p>
+			<textarea
+				id="composer_track_image_caption"
+				name="composer_track_image_caption"
+				class="widefat"
+				rows="3"
+				placeholder="Optional caption or credits"
+			><?php echo esc_textarea( $image_caption ); ?></textarea>
 		</p>
 
 		<?php
@@ -220,6 +282,16 @@ class Composer_Tracks {
 			? absint( $_POST['composer_track_audio'] )
 			: 0;
 
+		$submitted_image = isset( $_POST['composer_track_image'] )
+			? absint( $_POST['composer_track_image'] )
+			: 0;
+
+		$submitted_image_caption = isset( $_POST['composer_track_image_caption'] )
+			? sanitize_textarea_field(
+				wp_unslash( $_POST['composer_track_image_caption'] )
+			)
+			: '';
+
 		/*
 		 * A missing audio file is invalid.
 		 *
@@ -251,6 +323,18 @@ class Composer_Tracks {
 			$post_id,
 			'_composer_track_audio',
 			$submitted_audio
+		);
+
+		update_post_meta(
+			$post_id,
+			'_composer_track_image',
+			$submitted_image
+		);
+
+		update_post_meta(
+			$post_id,
+			'_composer_track_image_caption',
+			$submitted_image_caption
 		);
 
 		$this->ensure_track_order( $post_id );

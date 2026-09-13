@@ -14,6 +14,52 @@ class TestRESTAPI extends WP_UnitTestCase {
 		);
 	}
 
+	private function create_image_attachment( $filename = 'test-image.jpg' ) {
+		$source = DIR_TESTDATA . '/images/canola.jpg';
+
+		$this->assertFileExists( $source );
+
+		$upload = wp_upload_bits(
+			$filename,
+			null,
+			file_get_contents( $source )
+		);
+
+		$this->assertFalse(
+			$upload['error'],
+			$upload['error']
+		);
+
+		require_once ABSPATH . 'wp-admin/includes/image.php';
+
+		$image_id = self::factory()->attachment->create(
+			array(
+				'post_mime_type' => 'image/jpeg',
+				'post_title'     => 'Test Image',
+				'post_status'    => 'inherit',
+				'guid'           => $upload['url'],
+			)
+		);
+
+		update_attached_file(
+			$image_id,
+			$upload['file']
+		);
+
+		$metadata = wp_generate_attachment_metadata(
+			$image_id,
+			$upload['file']
+		);
+
+		wp_update_attachment_metadata(
+			$image_id,
+			$metadata
+		);
+
+		return $image_id;
+	}
+
+
 	public function test_endpoint_returns_published_tracks_only() {
 		$audio_id = $this->create_audio_attachment( 'published.mp3' );
 
@@ -107,7 +153,7 @@ class TestRESTAPI extends WP_UnitTestCase {
 		$this->assertCount( 1, $data );
 
 		$this->assertSame(
-			array( 'id', 'title', 'style', 'url' ),
+			array( 'id', 'title', 'style', 'url' , 'image'),
 			array_keys( $data[0] )
 		);
 
@@ -297,4 +343,180 @@ class TestRESTAPI extends WP_UnitTestCase {
             $data
         );
     }
+
+	public function test_endpoint_returns_image_data_when_present() {
+		$audio_id = $this->create_audio_attachment( 'test-track.mp3' );
+        $image_id = $this->create_image_attachment();
+
+		update_post_meta(
+			$image_id,
+			'_wp_attachment_image_alt',
+			'Abstract artwork'
+		);
+
+		$track_id = self::factory()->post->create(
+			array(
+				'post_type'   => 'composer_track',
+				'post_status' => 'publish',
+				'post_title'  => 'Test Track',
+			)
+		);
+
+		update_post_meta(
+			$track_id,
+			'_composer_track_style',
+			'Orchestral'
+		);
+
+		update_post_meta(
+			$track_id,
+			'_composer_track_audio',
+			$audio_id
+		);
+
+		update_post_meta(
+			$track_id,
+			'_composer_track_image',
+			$image_id
+		);
+
+		update_post_meta(
+			$track_id,
+			'_composer_track_image_caption',
+			'Artwork by Jane Doe'
+		);
+
+		update_post_meta(
+			$track_id,
+			'_composer_track_order',
+			0
+		);
+
+		$request = new WP_REST_Request(
+			'GET',
+			'/composer-player/v1/tracks'
+		);
+
+		$response = rest_do_request( $request );
+		$data     = $response->get_data();
+
+		$this->assertSame(
+			array(
+				'id',
+				'title',
+				'style',
+				'url',
+				'image',
+			),
+			array_keys( $data[0] )
+		);
+
+		$this->assertSame(
+			array(
+				'url'     => wp_get_attachment_image_url( $image_id, 'full' ),
+				'alt'     => 'Abstract artwork',
+				'caption' => 'Artwork by Jane Doe',
+			),
+			$data[0]['image']
+		);
+	}
+
+	public function test_endpoint_returns_null_image_when_track_has_no_image() {
+		$audio_id = $this->create_audio_attachment( 'test-track.mp3' );
+
+		$track_id = self::factory()->post->create(
+			array(
+				'post_type'   => 'composer_track',
+				'post_status' => 'publish',
+				'post_title'  => 'Test Track',
+			)
+		);
+
+		update_post_meta(
+			$track_id,
+			'_composer_track_style',
+			'Orchestral'
+		);
+
+		update_post_meta(
+			$track_id,
+			'_composer_track_audio',
+			$audio_id
+		);
+
+		update_post_meta(
+			$track_id,
+			'_composer_track_order',
+			0
+		);
+
+		$request = new WP_REST_Request(
+			'GET',
+			'/composer-player/v1/tracks'
+		);
+
+		$response = rest_do_request( $request );
+		$data     = $response->get_data();
+
+		$this->assertNull(
+			$data[0]['image']
+		);
+	}
+
+	public function test_endpoint_returns_image_caption() {
+		$audio_id = $this->create_audio_attachment( 'test-track.mp3' );
+        $image_id = $this->create_image_attachment();
+
+
+		$track_id = self::factory()->post->create(
+			array(
+				'post_type'   => 'composer_track',
+				'post_status' => 'publish',
+				'post_title'  => 'Test Track',
+			)
+		);
+
+		update_post_meta(
+			$track_id,
+			'_composer_track_style',
+			'Orchestral'
+		);
+
+		update_post_meta(
+			$track_id,
+			'_composer_track_audio',
+			$audio_id
+		);
+
+		update_post_meta(
+			$track_id,
+			'_composer_track_image',
+			$image_id
+		);
+
+		update_post_meta(
+			$track_id,
+			'_composer_track_image_caption',
+			'Artwork by Jane Doe'
+		);
+
+		update_post_meta(
+			$track_id,
+			'_composer_track_order',
+			0
+		);
+
+		$request = new WP_REST_Request(
+			'GET',
+			'/composer-player/v1/tracks'
+		);
+
+		$response = rest_do_request( $request );
+		$data     = $response->get_data();
+
+		$this->assertSame(
+			'Artwork by Jane Doe',
+			$data[0]['image']['caption']
+		);
+	}
 }

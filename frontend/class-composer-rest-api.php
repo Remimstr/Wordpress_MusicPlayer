@@ -57,11 +57,43 @@ class Composer_REST_API {
 				continue;
 			}
 
+			$image_attachment = get_post_meta(
+				$track->ID,
+				'_composer_track_image',
+				true
+			);
+
+			$image = null;
+
+			if ( $image_attachment ) {
+				$image_url = wp_get_attachment_image_url(
+					$image_attachment,
+					'full'
+				);
+
+				if ( $image_url ) {
+					$image = array(
+						'url'     => $image_url,
+						'alt'     => get_post_meta(
+							$image_attachment,
+							'_wp_attachment_image_alt',
+							true
+						),
+						'caption' => get_post_meta(
+							$track->ID,
+							'_composer_track_image_caption',
+							true
+						),
+					);
+				}
+			}
+
 			$response[] = array(
 				'id'    => $track->ID,
 				'title' => $track->post_title,
 				'style' => $style,
 				'url'   => $audio_url,
+				'image' => $image,
 			);
 		}
 
