@@ -287,10 +287,25 @@ class Composer_Tracks {
 			: 0;
 
 		$submitted_image_caption = isset( $_POST['composer_track_image_caption'] )
-			? wp_kses_post(
-				wp_unslash( $_POST['composer_track_image_caption'] )
-			)
+			? wp_unslash( $_POST['composer_track_image_caption'] )
 			: '';
+
+		$submitted_image_caption = preg_replace(
+			'#<(script|style|iframe|object|embed)[^>]*>.*?</\1>#is',
+			'',
+			$submitted_image_caption
+		);
+
+		$submitted_image_caption = wp_kses(
+			$submitted_image_caption,
+			array(
+				'a' => array(
+					'href'   => true,
+					'target' => true,
+					'rel'    => true,
+				),
+			)
+		);
 
 		/*
 		 * A missing audio file is invalid.
