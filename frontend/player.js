@@ -62,17 +62,6 @@ function initializePlayerIcons() {
   setButtonIcon(nextButton, icons.skipForward);
 }
 
-function formatTime(seconds) {
-  if (!Number.isFinite(seconds)) {
-    return "0:00";
-  }
-
-  const minutes = Math.floor(seconds / 60);
-  const remainingSeconds = Math.floor(seconds % 60);
-
-  return `${minutes}:${String(remainingSeconds).padStart(2, "0")}`;
-}
-
 function updateProgress() {
   if (!Number.isFinite(audio.duration) || audio.duration <= 0) {
     progress.value = 0;
@@ -267,7 +256,7 @@ initializePlayerIcons();
 fetch(config.tracksUrl)
   .then((response) => {
     if (!response.ok) {
-      throw new Error(`Failed to load tracks.json: ${response.status}`);
+      throw new Error(`Failed to load tracks: ${response.status}`);
     }
 
     return response.json();

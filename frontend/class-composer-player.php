@@ -8,13 +8,14 @@ class Composer_Player {
 
 	public function __construct() {
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
+		add_action( 'wp_head', array( $this, 'render_config' ) );
 		add_action( 'wp_footer', array( $this, 'render_player' ) );
 		add_shortcode( 'composer_player', array( $this, 'render_shortcode' ) );
 	}
 
 	public function enqueue_assets() {
 		$plugin_url = plugin_dir_url( __FILE__ );
-        $version = COMPOSER_PLAYER_VERSION;
+		$version    = COMPOSER_PLAYER_VERSION;
 
 		wp_enqueue_style(
 			'composer-player',
@@ -23,28 +24,29 @@ class Composer_Player {
 			$version
 		);
 
-		wp_enqueue_script(
+		wp_enqueue_script_module(
 			'composer-player',
 			$plugin_url . 'player.js',
 			array(),
-			$version,
-			true
+			$version
+		);
+	}
+
+	public function render_config() {
+		$plugin_url = plugin_dir_url( __FILE__ );
+
+		$config = array(
+			'tracksUrl' => rest_url( 'composer-player/v1/tracks' ),
+			'icons'     => array(
+				'play'        => $plugin_url . 'icons/play.svg',
+				'pause'       => $plugin_url . 'icons/pause.svg',
+				'skipBack'    => $plugin_url . 'icons/skip-back.svg',
+				'skipForward' => $plugin_url . 'icons/skip-forward.svg',
+			),
 		);
 
-		wp_add_inline_script(
-			'composer-player',
-			'window.ComposerPlayer = ' . wp_json_encode(
-				array(
-					'tracksUrl' => rest_url( 'composer-player/v1/tracks' ),
-					'icons'     => array(
-						'play'        => $plugin_url . 'icons/play.svg',
-						'pause'       => $plugin_url . 'icons/pause.svg',
-						'skipBack'    => $plugin_url . 'icons/skip-back.svg',
-						'skipForward' => $plugin_url . 'icons/skip-forward.svg',
-					),
-				)
-			) . ';',
-			'before'
+		wp_print_inline_script_tag(
+			'window.ComposerPlayer = ' . wp_json_encode( $config ) . ';'
 		);
 	}
 
