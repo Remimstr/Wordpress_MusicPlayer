@@ -387,7 +387,7 @@ class Composer_Tracks {
 
 			wp_enqueue_script(
 				'composer-tracks-admin',
-				plugin_dir_url( __FILE__ ) . '../admin/composer-tracks-admin.js',
+				plugin_dir_url( __FILE__ ) . 'composer-tracks-admin.js',
 				array(),
 				'1.0.0',
 				true
@@ -404,7 +404,7 @@ class Composer_Tracks {
 			'composer-track-reorder',
 			plugin_dir_url( __FILE__ ) . '../admin/composer-track-reorder.js',
 			array(),
-			'1.0.0',
+			COMPOSER_PLAYER_VERSION,
 			true
 		);
 
@@ -412,7 +412,7 @@ class Composer_Tracks {
 			'composer-track-reorder',
 			plugin_dir_url( __FILE__ ) . '../admin/composer-track-reorder.css',
 			array(),
-			'1.0.0'
+			COMPOSER_PLAYER_VERSION
 		);
 
 		wp_add_inline_script(
