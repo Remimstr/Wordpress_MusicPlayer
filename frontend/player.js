@@ -19,6 +19,9 @@ const artwork = document.querySelector(".composer-player-artwork");
 const artworkImage = document.querySelector(
   ".composer-player-artwork-image"
 );
+const artworkCaption = document.querySelector(
+  ".composer-player-artwork-caption"
+);
 const previousButton = document.querySelector(".composer-player-previous");
 const playButton = document.querySelector(".composer-player-play");
 const nextButton = document.querySelector(".composer-player-next");
@@ -119,13 +122,14 @@ function updateTrackRows() {
 }
 
 function updateArtwork(track) {
-  if (!artwork || !artworkImage || !player) {
+  if (!artwork || !artworkImage || !artworkCaption || !player) {
     return;
   }
 
   if (!track.image || !track.image.url) {
     artworkImage.removeAttribute("src");
     artworkImage.alt = "";
+    artworkCaption.innerHTML = "";
     artwork.hidden = true;
     player.classList.remove("has-artwork");
     return;
@@ -133,6 +137,7 @@ function updateArtwork(track) {
 
   artworkImage.src = track.image.url;
   artworkImage.alt = track.image.alt || "";
+  artworkCaption.innerHTML = track.image.caption || "";
   artwork.hidden = false;
   player.classList.add("has-artwork");
 }

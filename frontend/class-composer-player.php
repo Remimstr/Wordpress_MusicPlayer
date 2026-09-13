@@ -125,6 +125,7 @@ class Composer_Player {
 						src=""
 						alt=""
 					>
+					<div class="composer-player-artwork-caption"></div>
 				</div>
 
 				<div

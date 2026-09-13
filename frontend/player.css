@@ -77,11 +77,32 @@
   display: none;
 }
 
+.composer-player-artwork {
+  overflow: hidden;
+}
+
+.composer-player-artwork-caption a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.composer-player-artwork-caption a:hover {
+  color: var(--player-accent);
+}
+
 .composer-player-artwork-image {
   display: block;
   width: 100%;
-  height: 100%;
+  aspect-ratio: 1 / 1;
   object-fit: cover;
+}
+
+.composer-player-artwork-caption {
+  padding: 10px 12px 0;
+  color: var(--player-text-muted);
+  font-size: 13px;
+  line-height: 1.4;
 }
 
 .composer-tracklist {

@@ -187,7 +187,7 @@ class Composer_Tracks {
 				name="composer_track_image_caption"
 				class="widefat"
 				rows="3"
-				placeholder="Optional caption or credits"
+				placeholder="Optional caption or credits. HTML links are supported."
 			><?php echo esc_textarea( $image_caption ); ?></textarea>
 		</p>
 
@@ -287,7 +287,7 @@ class Composer_Tracks {
 			: 0;
 
 		$submitted_image_caption = isset( $_POST['composer_track_image_caption'] )
-			? sanitize_textarea_field(
+			? wp_kses_post(
 				wp_unslash( $_POST['composer_track_image_caption'] )
 			)
 			: '';
