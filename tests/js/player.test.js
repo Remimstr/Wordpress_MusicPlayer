@@ -101,7 +101,7 @@ describe("player", () => {
 
     expect(
       document.querySelector(".composer-player-style").textContent
-    ).toBe("· Orchestral");
+    ).toBe("—  Orchestral");
   });
 
   it("loads and plays a selected track", async () => {
@@ -132,7 +132,7 @@ describe("player", () => {
 
     expect(
       document.querySelector(".composer-player-style").textContent
-    ).toBe("· Electronic");
+    ).toBe("—  Electronic");
 
     expect(audio.play).toHaveBeenCalled();
   });
@@ -365,7 +365,7 @@ describe("player", () => {
 
     expect(
       document.querySelector(".composer-player-style").textContent
-    ).toBe("· Electronic");
+    ).toBe("—  Electronic");
 
     expect(audio.play).toHaveBeenCalled();
   });

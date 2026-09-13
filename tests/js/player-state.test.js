@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  formatStyle,
   formatTime,
   getPreviousTrackIndex,
   getNextTrackIndex,
