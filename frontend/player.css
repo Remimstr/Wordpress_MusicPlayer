@@ -70,7 +70,7 @@
 .composer-player-artwork {
   min-width: 0;
   aspect-ratio: 1;
-  background: var(--player-bg);
+  background: var(--player-bg-elevated);
 }
 
 .composer-player-artwork[hidden] {

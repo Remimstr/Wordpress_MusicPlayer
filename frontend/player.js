@@ -129,16 +129,25 @@ function updateArtwork(track) {
   if (!track.image || !track.image.url) {
     artworkImage.removeAttribute("src");
     artworkImage.alt = "";
+    artworkImage.hidden = true;
+
     artworkCaption.innerHTML = "";
-    artwork.hidden = true;
-    player.classList.remove("has-artwork");
+
+    artwork.hidden = false;
+    artwork.classList.add("is-placeholder");
+    player.classList.add("has-artwork");
+
     return;
   }
 
   artworkImage.src = track.image.url;
   artworkImage.alt = track.image.alt || "";
+  artworkImage.hidden = false;
+
   artworkCaption.innerHTML = track.image.caption || "";
+
   artwork.hidden = false;
+  artwork.classList.remove("is-placeholder");
   player.classList.add("has-artwork");
 }
 
