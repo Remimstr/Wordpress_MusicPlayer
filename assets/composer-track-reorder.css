@@ -1,0 +1,81 @@
+.composer-track-order-list {
+	width: min(100%, 800px);
+	margin: 28px 0;
+	padding: 0;
+	list-style: none;
+}
+
+.composer-track-order-item {
+	display: flex;
+	align-items: center;
+	gap: 18px;
+	min-height: 72px;
+	margin: 0 0 10px;
+	padding: 12px 18px;
+	border: 1px solid #dcdcde;
+	border-radius: 6px;
+	background: #fff;
+	box-sizing: border-box;
+	cursor: grab;
+	transition:
+		border-color 0.15s ease,
+		box-shadow 0.15s ease,
+		opacity 0.15s ease;
+}
+
+.composer-track-order-item:hover {
+	border-color: #b5b5b5;
+}
+
+.composer-track-order-item:active {
+	cursor: grabbing;
+}
+
+.composer-track-order-item.is-dragging {
+	opacity: 0.45;
+}
+
+.composer-track-order-item.is-drag-over {
+	border-color: #2271b1;
+	box-shadow: 0 0 0 1px #2271b1;
+}
+
+.composer-track-drag-handle {
+	flex: 0 0 auto;
+	color: #646970;
+	font-size: 22px;
+	line-height: 1;
+	cursor: grab;
+	user-select: none;
+}
+
+.composer-track-order-item:active .composer-track-drag-handle {
+	cursor: grabbing;
+}
+
+.composer-track-order-title {
+	flex: 1 1 auto;
+	font-size: 16px;
+	font-weight: 500;
+	line-height: 1.4;
+}
+
+.composer-track-order-edit {
+	flex: 0 0 auto;
+	font-size: 13px;
+	text-decoration: none;
+}
+
+.composer-track-order-edit:hover {
+	text-decoration: underline;
+}
+
+.composer-track-order-status {
+	display: inline-block;
+	margin-left: 10px;
+}
+
+#composer-track-save-order {
+	min-height: 36px;
+	padding: 0 16px;
+}

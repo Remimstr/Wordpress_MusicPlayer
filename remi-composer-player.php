@@ -2,13 +2,15 @@
 /**
  * Plugin Name: Remi Composer Player
  * Description: Floating persistent music player for remimarchand.ca.
- * Version: 1.0.0
+ * Version: 1.0.1
  * Author: Remi Marchand
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
+
+require_once __DIR__ . '/includes/class-composer-tracks.php';
 
 function remi_composer_player_enqueue_assets() {
     $plugin_url = plugin_dir_url( __FILE__ );
