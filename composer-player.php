@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin Name: Remi Composer Player
+ * Plugin Name: Composer Player
  * Description: Floating persistent music player for remimarchand.ca.
  * Version: 1.0.1
  * Author: Remi Marchand
@@ -12,19 +12,19 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 require_once __DIR__ . '/includes/class-composer-tracks.php';
 
-function remi_composer_player_enqueue_assets() {
+function composer_player_enqueue_assets() {
     $plugin_url = plugin_dir_url( __FILE__ );
     $version    = '1.0.0';
 
     wp_enqueue_style(
-        'remi-composer-player',
+        'composer-player',
         $plugin_url . 'assets/player.css',
         array(),
         $version
     );
 
     wp_enqueue_script(
-        'remi-composer-player',
+        'composer-player',
         $plugin_url . 'assets/player.js',
         array(),
         $version,
@@ -32,8 +32,8 @@ function remi_composer_player_enqueue_assets() {
     );
 
     wp_add_inline_script(
-        'remi-composer-player',
-        'window.RemiComposerPlayer = ' . wp_json_encode(
+        'composer-player',
+        'window.ComposerPlayer = ' . wp_json_encode(
             array(
                 'tracksUrl' => $plugin_url . 'assets/tracks.json',
                 'icons'     => array(
@@ -47,9 +47,9 @@ function remi_composer_player_enqueue_assets() {
         'before'
     );
 }
-add_action( 'wp_enqueue_scripts', 'remi_composer_player_enqueue_assets' );
+add_action( 'wp_enqueue_scripts', 'composer_player_enqueue_assets' );
 
-function remi_composer_player_markup() {
+function composer_player_markup() {
     ?>
     <div id="composer-floating-player">
         <div class="composer-player-inner">
@@ -111,9 +111,9 @@ function remi_composer_player_markup() {
     </div>
     <?php
 }
-add_action( 'wp_footer', 'remi_composer_player_markup' );
+add_action( 'wp_footer', 'composer_player_markup' );
 
-function remi_composer_player_shortcode() {
+function composer_player_shortcode() {
     return '<div class="composer-player"><div class="composer-tracklist" aria-label="Music"></div></div>';
 }
-add_shortcode( 'remi_composer_player', 'remi_composer_player_shortcode' );
+add_shortcode( 'composer_player', 'composer_player_shortcode' );

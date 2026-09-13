@@ -119,15 +119,15 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       const body = new URLSearchParams();
 
-      body.set("action", "remi_save_track_order");
+      body.set("action", "save_track_order");
       body.set(
         "nonce",
-        window.RemiComposerTrackOrder.nonce,
+        window.ComposerTrackOrder.nonce,
       );
       body.set("order", JSON.stringify(order));
 
       const response = await fetch(
-        window.RemiComposerTrackOrder.ajaxUrl,
+        window.ComposerTrackOrder.ajaxUrl,
         {
           method: "POST",
           headers: {

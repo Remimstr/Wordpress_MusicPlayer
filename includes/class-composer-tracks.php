@@ -4,7 +4,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-class Remi_Composer_Tracks {
+class Composer_Tracks {
 
 	public function __construct() {
 		add_action( 'init', array( $this, 'register_post_type' ) );
@@ -12,7 +12,7 @@ class Remi_Composer_Tracks {
 		add_action( 'save_post_composer_track', array( $this, 'save_track' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_assets' ) );
 		add_action( 'admin_menu', array( $this, 'add_reorder_page' ) );
-		add_action( 'wp_ajax_remi_save_track_order', array( $this, 'save_track_order' ) );
+		add_action( 'wp_ajax_save_track_order', array( $this, 'save_track_order' ) );
 	}
 
 	public function register_post_type() {
@@ -385,8 +385,8 @@ class Remi_Composer_Tracks {
 			wp_enqueue_media();
 
 			wp_enqueue_script(
-				'remi-composer-tracks-admin',
-				plugin_dir_url( __FILE__ ) . '../assets/composer-tracks-admin.js',
+				'composer-tracks-admin',
+				plugin_dir_url( __FILE__ ) . '../admin/composer-tracks-admin.js',
 				array(),
 				'1.0.0',
 				true
@@ -400,23 +400,23 @@ class Remi_Composer_Tracks {
 		}
 
 		wp_enqueue_script(
-			'remi-composer-track-reorder',
-			plugin_dir_url( __FILE__ ) . '../assets/composer-track-reorder.js',
+			'composer-track-reorder',
+			plugin_dir_url( __FILE__ ) . '../admin/composer-track-reorder.js',
 			array(),
 			'1.0.0',
 			true
 		);
 
 		wp_enqueue_style(
-			'remi-composer-track-reorder',
-			plugin_dir_url( __FILE__ ) . '../assets/composer-track-reorder.css',
+			'composer-track-reorder',
+			plugin_dir_url( __FILE__ ) . '../admin/composer-track-reorder.css',
 			array(),
 			'1.0.0'
 		);
 
 		wp_add_inline_script(
-			'remi-composer-track-reorder',
-			'window.RemiComposerTrackOrder = ' . wp_json_encode(
+			'composer-track-reorder',
+			'window.ComposerTrackOrder = ' . wp_json_encode(
 				array(
 					'ajaxUrl' => admin_url( 'admin-ajax.php' ),
 					'nonce'   => wp_create_nonce( 'composer_track_order' ),
@@ -427,4 +427,4 @@ class Remi_Composer_Tracks {
 	}
 }
 
-new Remi_Composer_Tracks();
+new Composer_Tracks();

@@ -1,6 +1,6 @@
 let tracks = [];
 
-const config = window.RemiComposerPlayer || {};
+const config = window.ComposerPlayer || {};
 const icons = config.icons || {};
 
 const audio = document.querySelector(".composer-player-audio");
