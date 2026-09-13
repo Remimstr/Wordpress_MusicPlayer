@@ -56,4 +56,16 @@ document.addEventListener("DOMContentLoaded", () => {
     audioName.hidden = true;
     removeButton.hidden = true;
   });
+
+  const form = audioField.closest("form");
+
+  if (form) {
+    form.addEventListener("submit", (event) => {
+      if (!audioField.value) {
+        event.preventDefault();
+        alert("Please select an audio file before saving the track.");
+        selectButton.focus();
+      }
+    });
+  }
 });

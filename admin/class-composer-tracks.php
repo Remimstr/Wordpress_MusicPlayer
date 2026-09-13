@@ -12,37 +12,38 @@ class Composer_Tracks {
 		add_action( 'save_post_composer_track', array( $this, 'save_track' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_assets' ) );
 		add_action( 'admin_menu', array( $this, 'add_reorder_page' ) );
-		add_action( 'wp_ajax_save_track_order', array( $this, 'save_track_order' ) );
+		add_action( 'wp_ajax_composer_save_track_order', array( $this, 'save_track_order' ) );
+		add_filter( 'wp_insert_post_data', array( $this, 'validate_track_title' ), 10, 2 );
+		add_action( 'admin_notices', array( $this, 'show_validation_errors' ) );
 	}
 
 	public function register_post_type() {
 		register_post_type(
 			'composer_track',
 			array(
-
-                'labels' => array(
-                    'name'          => 'Tracks',
-                    'singular_name' => 'Track',
-                    'add_new'       => 'Add Track',
-                    'add_new_item'  => 'Add Track',
-                    'edit_item'     => 'Edit Track',
-                    'new_item'      => 'New Track',
-                    'view_item'     => 'View Track',
-                    'search_items'  => 'Search Tracks',
-                    'not_found'     => 'No tracks found',
-                    'menu_name'     => 'Composer Music',
-                ),
-				'public'          => false,
-				'show_ui'         => true,
-				'show_in_menu'   => true,
-				'show_in_rest'   => true,
-				'menu_icon'      => 'dashicons-format-audio',
-				'supports'       => array( 'title' ),
+				'labels' => array(
+					'name'          => 'Tracks',
+					'singular_name' => 'Track',
+					'add_new'       => 'Add Track',
+					'add_new_item'  => 'Add Track',
+					'edit_item'     => 'Edit Track',
+					'new_item'      => 'New Track',
+					'view_item'     => 'View Track',
+					'search_items'  => 'Search Tracks',
+					'not_found'     => 'No tracks found',
+					'menu_name'     => 'Composer Music',
+				),
+				'public'           => false,
+				'show_ui'          => true,
+				'show_in_menu'     => true,
+				'show_in_rest'     => true,
+				'menu_icon'        => 'dashicons-format-audio',
+				'supports'         => array( 'title' ),
 				'capability_type' => 'post',
-				'map_meta_cap'    => true,
-				'has_archive'     => false,
-				'rewrite'        => false,
-				'query_var'      => false,
+				'map_meta_cap'     => true,
+				'has_archive'      => false,
+				'rewrite'          => false,
+				'query_var'        => false,
 			)
 		);
 	}
@@ -131,6 +132,59 @@ class Composer_Tracks {
 		<?php
 	}
 
+	/**
+	 * Prevent an empty title from overwriting an existing title.
+	 *
+	 * Existing tracks retain their current title and status.
+	 * New auto-draft tracks are saved as drafts.
+	 */
+	public function validate_track_title( $data, $postarr ) {
+		if (
+			! isset( $postarr['post_type'] )
+			|| 'composer_track' !== $postarr['post_type']
+		) {
+			return $data;
+		}
+
+		if (
+			! isset( $data['post_title'] )
+			|| '' !== trim( $data['post_title'] )
+		) {
+			return $data;
+		}
+
+		$post_id = isset( $postarr['ID'] )
+			? absint( $postarr['ID'] )
+			: 0;
+
+		/*
+		 * WordPress creates new editor posts as "auto-draft" posts
+		 * with the temporary title "Auto Draft". Treat these as new
+		 * tracks rather than restoring that temporary title.
+		 */
+		$is_new_track = ! $post_id
+			|| 'auto-draft' === get_post_status( $post_id );
+
+		if ( ! $is_new_track ) {
+			$existing_title = get_post_field(
+				'post_title',
+				$post_id
+			);
+
+			if ( '' !== trim( $existing_title ) ) {
+				$data['post_title'] = $existing_title;
+			}
+		}
+
+		$data['post_status'] = 'draft';
+
+		$this->add_validation_error(
+			'Please enter a track title.'
+		);
+
+		return $data;
+	}
+
 	public function save_track( $post_id ) {
 		if (
 			! isset( $_POST['composer_track_details_nonce'] )
@@ -154,29 +208,123 @@ class Composer_Tracks {
 			return;
 		}
 
-		$style = isset( $_POST['composer_track_style'] )
+		$submitted_style = isset( $_POST['composer_track_style'] )
 			? sanitize_text_field(
 				wp_unslash( $_POST['composer_track_style'] )
 			)
 			: '';
 
-		$audio_attachment = isset( $_POST['composer_track_audio'] )
+		$submitted_audio = isset( $_POST['composer_track_audio'] )
 			? absint( $_POST['composer_track_audio'] )
 			: 0;
 
+		/*
+		 * A missing audio file is invalid.
+		 *
+		 * Existing tracks keep their current metadata and status.
+		 * New tracks are left as drafts.
+		 */
+		if ( ! $submitted_audio ) {
+			$this->add_validation_error(
+				'Please select an audio file before saving the track.'
+			);
+
+			if ( 'auto-draft' === get_post_status( $post_id ) ) {
+				$this->set_track_to_draft( $post_id );
+			}
+
+			return;
+		}
+
+		/*
+		 * Only update metadata after validation succeeds.
+		 */
 		update_post_meta(
 			$post_id,
 			'_composer_track_style',
-			$style
+			$submitted_style
 		);
 
 		update_post_meta(
 			$post_id,
 			'_composer_track_audio',
-			$audio_attachment
+			$submitted_audio
 		);
 
 		$this->ensure_track_order( $post_id );
+	}
+
+	private function set_track_to_draft( $post_id ) {
+		remove_action(
+			'save_post_composer_track',
+			array( $this, 'save_track' )
+		);
+
+		wp_update_post(
+			array(
+				'ID'          => $post_id,
+				'post_status' => 'draft',
+			)
+		);
+
+		add_action(
+			'save_post_composer_track',
+			array( $this, 'save_track' )
+		);
+	}
+
+	private function add_validation_error( $message ) {
+		$user_id = get_current_user_id();
+
+		if ( ! $user_id ) {
+			return;
+		}
+
+		$errors = get_transient(
+			'composer_track_validation_' . $user_id
+		);
+
+		if ( ! is_array( $errors ) ) {
+			$errors = array();
+		}
+
+		$errors[] = $message;
+
+		set_transient(
+			'composer_track_validation_' . $user_id,
+			$errors,
+			60
+		);
+	}
+
+	public function show_validation_errors() {
+		$user_id = get_current_user_id();
+
+		if ( ! $user_id ) {
+			return;
+		}
+
+		$errors = get_transient(
+			'composer_track_validation_' . $user_id
+		);
+
+		if ( ! is_array( $errors ) || empty( $errors ) ) {
+			return;
+		}
+
+		delete_transient(
+			'composer_track_validation_' . $user_id
+		);
+
+		foreach ( $errors as $error ) {
+			?>
+			<div class="notice notice-error is-dismissible">
+				<p>
+					<?php echo esc_html( $error ); ?>
+				</p>
+			</div>
+			<?php
+		}
 	}
 
 	private function ensure_track_order( $post_id ) {
@@ -266,29 +414,29 @@ class Composer_Tracks {
 				class="composer-track-order-list"
 			>
 				<?php foreach ( $tracks as $track ) : ?>
-                    <li
-                        class="composer-track-order-item"
-                        data-track-id="<?php echo esc_attr( $track->ID ); ?>"
-                        draggable="true"
-                    >
-                        <span
-                            class="composer-track-drag-handle"
-                            aria-hidden="true"
-                        >
-                            ☰
-                        </span>
+					<li
+						class="composer-track-order-item"
+						data-track-id="<?php echo esc_attr( $track->ID ); ?>"
+						draggable="true"
+					>
+						<span
+							class="composer-track-drag-handle"
+							aria-hidden="true"
+						>
+							☰
+						</span>
 
-                        <span class="composer-track-order-title">
-                            <?php echo esc_html( $track->post_title ); ?>
-                        </span>
+						<span class="composer-track-order-title">
+							<?php echo esc_html( $track->post_title ); ?>
+						</span>
 
-                        <a
-                            class="composer-track-order-edit"
-                            href="<?php echo esc_url( get_edit_post_link( $track->ID ) ); ?>"
-                        >
-                            Edit
-                        </a>
-                    </li>
+						<a
+							class="composer-track-order-edit"
+							href="<?php echo esc_url( get_edit_post_link( $track->ID ) ); ?>"
+						>
+							Edit
+						</a>
+					</li>
 				<?php endforeach; ?>
 			</ul>
 
@@ -389,7 +537,7 @@ class Composer_Tracks {
 				'composer-tracks-admin',
 				plugin_dir_url( __FILE__ ) . 'composer-tracks-admin.js',
 				array(),
-				'1.0.0',
+				COMPOSER_PLAYER_VERSION,
 				true
 			);
 
@@ -402,15 +550,15 @@ class Composer_Tracks {
 
 		wp_enqueue_script(
 			'composer-track-reorder',
-			plugin_dir_url( __FILE__ ) . '../admin/composer-track-reorder.js',
-			array(),
+			plugin_dir_url( __FILE__ ) . 'composer-track-reorder.js',
+			array( 'jquery', 'jquery-ui-sortable' ),
 			COMPOSER_PLAYER_VERSION,
 			true
 		);
 
 		wp_enqueue_style(
 			'composer-track-reorder',
-			plugin_dir_url( __FILE__ ) . '../admin/composer-track-reorder.css',
+			plugin_dir_url( __FILE__ ) . 'composer-track-reorder.css',
 			array(),
 			COMPOSER_PLAYER_VERSION
 		);
