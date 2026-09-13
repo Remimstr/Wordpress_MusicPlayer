@@ -11,6 +11,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 require_once __DIR__ . '/includes/class-composer-tracks.php';
+require_once __DIR__ . '/includes/class-composer-rest-api.php';
 
 function composer_player_enqueue_assets() {
     $plugin_url = plugin_dir_url( __FILE__ );
@@ -35,7 +36,7 @@ function composer_player_enqueue_assets() {
         'composer-player',
         'window.ComposerPlayer = ' . wp_json_encode(
             array(
-                'tracksUrl' => $plugin_url . 'assets/tracks.json',
+       			'tracksUrl' => rest_url( 'composer-player/v1/tracks' ),
                 'icons'     => array(
                     'play'       => $plugin_url . 'assets/icons/play.svg',
                     'pause'      => $plugin_url . 'assets/icons/pause.svg',
