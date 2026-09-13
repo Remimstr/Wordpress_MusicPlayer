@@ -1,3 +1,10 @@
+import {
+  formatTime,
+  getPreviousTrackIndex,
+  getNextTrackIndex,
+  getProgressPercentage,
+} from "./player-state.js";
+
 let tracks = [];
 
 const config = window.ComposerPlayer || {};
@@ -74,7 +81,10 @@ function updateProgress() {
     return;
   }
 
-  const percentage = (audio.currentTime / audio.duration) * 100;
+  const percentage = getProgressPercentage(
+    audio.currentTime,
+    audio.duration
+  );
 
   progress.value = percentage;
   progress.style.setProperty("--progress", `${percentage}%`);
@@ -286,19 +296,19 @@ playButton.addEventListener("click", () => {
 });
 
 previousButton.addEventListener("click", () => {
-  const previousIndex =
-    currentTrackIndex === 0
-      ? tracks.length - 1
-      : currentTrackIndex - 1;
+  const previousIndex = getPreviousTrackIndex(
+    currentTrackIndex,
+    tracks.length
+  );
 
   playTrack(previousIndex);
 });
 
 nextButton.addEventListener("click", () => {
-  const nextIndex =
-    currentTrackIndex === tracks.length - 1
-      ? 0
-      : currentTrackIndex + 1;
+  const nextIndex = getNextTrackIndex(
+    currentTrackIndex,
+    tracks.length
+  );
 
   playTrack(nextIndex);
 });

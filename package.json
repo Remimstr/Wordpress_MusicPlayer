@@ -2,10 +2,13 @@
   "name": "composer-player",
   "private": true,
   "devDependencies": {
-    "@wordpress/env": "^10.39.0"
+    "@wordpress/env": "^10.39.0",
+    "vitest": "^5.0.0"
   },
   "scripts": {
     "wp-env": "wp-env",
-    "test:php": "wp-env run tests-cli --env-cwd=wp-content/plugins/composer-player phpunit"
+    "test:php": "wp-env run tests-cli --env-cwd=wp-content/plugins/composer-player phpunit",
+    "test:js": "vitest run",
+    "test:js:watch": "vitest"
   }
 }
