@@ -19,18 +19,19 @@ class Composer_Tracks {
 		register_post_type(
 			'composer_track',
 			array(
-				'labels' => array(
-					'name'          => 'Composer Tracks',
-					'singular_name' => 'Composer Track',
-					'add_new'       => 'Add Track',
-					'add_new_item'  => 'Add Composer Track',
-					'edit_item'     => 'Edit Composer Track',
-					'new_item'      => 'New Composer Track',
-					'view_item'     => 'View Composer Track',
-					'search_items'  => 'Search Composer Tracks',
-					'not_found'     => 'No composer tracks found',
-					'menu_name'     => 'Composer Music',
-				),
+
+                'labels' => array(
+                    'name'          => 'Tracks',
+                    'singular_name' => 'Track',
+                    'add_new'       => 'Add Track',
+                    'add_new_item'  => 'Add Track',
+                    'edit_item'     => 'Edit Track',
+                    'new_item'      => 'New Track',
+                    'view_item'     => 'View Track',
+                    'search_items'  => 'Search Tracks',
+                    'not_found'     => 'No tracks found',
+                    'menu_name'     => 'Composer Music',
+                ),
 				'public'          => false,
 				'show_ui'         => true,
 				'show_in_menu'   => true,
