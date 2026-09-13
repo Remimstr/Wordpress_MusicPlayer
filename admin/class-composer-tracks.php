@@ -176,7 +176,9 @@ class Composer_Tracks {
 			}
 		}
 
-		$data['post_status'] = 'draft';
+		if ( $is_new_track ) {
+			$data['post_status'] = 'draft';
+        }
 
 		$this->add_validation_error(
 			'Please enter a track title.'
