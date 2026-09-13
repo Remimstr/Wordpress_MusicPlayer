@@ -4,6 +4,7 @@ import {
   getNextTrackIndex,
   getProgressPercentage,
 } from "./player-state.js";
+import { renderTracklist } from "./player-render.js";
 
 let tracks = [];
 
@@ -28,21 +29,6 @@ const durationElement = document.querySelector(
 const floatingPlayer = document.getElementById(
   "composer-floating-player"
 );
-
-if (floatingPlayer) {
-  const updatePlayerHeight = () => {
-    const height = floatingPlayer.getBoundingClientRect().height;
-
-    document.documentElement.style.setProperty(
-      "--composer-player-height",
-      `${height}px`
-    );
-  };
-
-  updatePlayerHeight();
-
-  new ResizeObserver(updatePlayerHeight).observe(floatingPlayer);
-}
 
 let currentTrackIndex = 0;
 
@@ -103,55 +89,6 @@ function updatePlayButton() {
     setButtonIcon(playButton, icons.pause);
     playButton.setAttribute("aria-label", "Pause");
   }
-}
-
-function renderTracklist() {
-  tracklist.innerHTML = "";
-
-  tracks.forEach((track, index) => {
-    const row = document.createElement("div");
-
-    row.className = "composer-track";
-    row.dataset.trackIndex = index;
-
-    row.innerHTML = `
-      <button
-        class="composer-track-play composer-player-button"
-        type="button"
-        aria-label="Play ${track.title}"
-      >
-        <img src="${icons.play}" alt="">
-      </button>
-
-      <div class="composer-track-info">
-        <span class="composer-track-title">
-          ${track.title}
-        </span>
-
-        <span class="composer-track-style">
-          ${track.style}
-        </span>
-      </div>
-
-      <span class="composer-track-duration">
-        0:00
-      </span>
-    `;
-
-    row.addEventListener("click", () => {
-      if (index === currentTrackIndex) {
-        if (audio.paused) {
-          audio.play();
-        } else {
-          audio.pause();
-        }
-      } else {
-        playTrack(index);
-      }
-    });
-
-    tracklist.appendChild(row);
-  });
 }
 
 function updateTrackRows() {
@@ -251,101 +188,127 @@ function playTrack(index) {
   });
 }
 
-initializePlayerIcons();
+export function initializePlayer() {
+  if (floatingPlayer) {
+    const updatePlayerHeight = () => {
+      const height = floatingPlayer.getBoundingClientRect().height;
 
-fetch(config.tracksUrl)
-  .then((response) => {
-    if (!response.ok) {
-      throw new Error(`Failed to load tracks: ${response.status}`);
+      document.documentElement.style.setProperty(
+        "--composer-player-height",
+        `${height}px`
+      );
+    };
+
+    updatePlayerHeight();
+
+    new ResizeObserver(updatePlayerHeight).observe(floatingPlayer);
+  }
+
+  initializePlayerIcons();
+
+  fetch(config.tracksUrl)
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`Failed to load tracks: ${response.status}`);
+      }
+
+      return response.json();
+    })
+    .then((data) => {
+      tracks = data;
+
+      renderTracklist(
+        tracklist,
+        tracks,
+        icons,
+        currentTrackIndex,
+        audio,
+        playTrack
+      );
+      loadTrack(0);
+      loadTrackDurations();
+      updateTrackRows();
+      updatePlayButton();
+    })
+    .catch((error) => {
+      console.error("Could not load tracks:", error);
+    });
+
+  playButton.addEventListener("click", () => {
+    if (audio.paused) {
+      audio.play().catch((error) => {
+        console.error("Unable to play audio:", error);
+      });
+    } else {
+      audio.pause();
     }
-
-    return response.json();
-  })
-  .then((data) => {
-    tracks = data;
-
-    renderTracklist();
-    loadTrack(0);
-    loadTrackDurations();
-    updateTrackRows();
-    updatePlayButton();
-  })
-  .catch((error) => {
-    console.error("Could not load tracks:", error);
   });
 
-playButton.addEventListener("click", () => {
-  if (audio.paused) {
-    audio.play().catch((error) => {
-      console.error("Unable to play audio:", error);
-    });
-  } else {
-    audio.pause();
-  }
-});
+  previousButton.addEventListener("click", () => {
+    const previousIndex = getPreviousTrackIndex(
+      currentTrackIndex,
+      tracks.length
+    );
 
-previousButton.addEventListener("click", () => {
-  const previousIndex = getPreviousTrackIndex(
-    currentTrackIndex,
-    tracks.length
-  );
+    playTrack(previousIndex);
+  });
 
-  playTrack(previousIndex);
-});
+  nextButton.addEventListener("click", () => {
+    const nextIndex = getNextTrackIndex(
+      currentTrackIndex,
+      tracks.length
+    );
 
-nextButton.addEventListener("click", () => {
-  const nextIndex = getNextTrackIndex(
-    currentTrackIndex,
-    tracks.length
-  );
+    playTrack(nextIndex);
+  });
 
-  playTrack(nextIndex);
-});
+  progress.addEventListener("input", () => {
+    if (!Number.isFinite(audio.duration)) {
+      return;
+    }
 
-progress.addEventListener("input", () => {
-  if (!Number.isFinite(audio.duration)) {
-    return;
-  }
+    const percentage = Number(progress.value) / 100;
 
-  const percentage = Number(progress.value) / 100;
+    audio.currentTime = percentage * audio.duration;
 
-  audio.currentTime = percentage * audio.duration;
+    progress.style.setProperty("--progress", `${progress.value}%`);
+    currentTimeElement.textContent = formatTime(audio.currentTime);
+  });
 
-  progress.style.setProperty("--progress", `${progress.value}%`);
-  currentTimeElement.textContent = formatTime(audio.currentTime);
-});
+  audio.addEventListener("timeupdate", () => {
+    updateProgress();
+  });
 
-audio.addEventListener("timeupdate", () => {
-  updateProgress();
-});
+  audio.addEventListener("loadedmetadata", () => {
+    updateDuration();
+  });
 
-audio.addEventListener("loadedmetadata", () => {
-  updateDuration();
-});
-
-audio.addEventListener("play", () => {
-  updatePlayButton();
-  updateTrackRows();
-});
-
-audio.addEventListener("pause", () => {
-  updatePlayButton();
-  updateTrackRows();
-});
-
-audio.addEventListener("ended", () => {
-  if (currentTrackIndex === tracks.length - 1) {
-    audio.currentTime = 0;
-
-    progress.value = 0;
-    progress.style.setProperty("--progress", "0%");
-    currentTimeElement.textContent = "0:00";
-
+  audio.addEventListener("play", () => {
     updatePlayButton();
     updateTrackRows();
+  });
 
-    return;
-  }
+  audio.addEventListener("pause", () => {
+    updatePlayButton();
+    updateTrackRows();
+  });
 
-  playTrack(currentTrackIndex + 1);
-});
+  audio.addEventListener("ended", () => {
+    if (currentTrackIndex === tracks.length - 1) {
+      audio.currentTime = 0;
+
+      progress.value = 0;
+      progress.style.setProperty("--progress", "0%");
+      currentTimeElement.textContent = "0:00";
+
+      updatePlayButton();
+      updateTrackRows();
+
+      return;
+    }
+
+    playTrack(currentTrackIndex + 1);
+  });
+}
+
+initializePlayer();
