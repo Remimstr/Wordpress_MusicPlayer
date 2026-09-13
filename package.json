@@ -1,0 +1,11 @@
+{
+  "name": "composer-player",
+  "private": true,
+  "devDependencies": {
+    "@wordpress/env": "^10.39.0"
+  },
+  "scripts": {
+    "wp-env": "wp-env",
+    "test:php": "wp-env run tests-cli --env-cwd=wp-content/plugins/composer-player phpunit"
+  }
+}

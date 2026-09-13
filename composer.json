@@ -1,0 +1,13 @@
+{
+  "name": "remi-marchand/composer-player",
+  "description": "WordPress music player plugin for remimarchand.ca",
+  "type": "wordpress-plugin",
+  "require-dev": {
+    "phpunit/phpunit": "^9.6",
+    "yoast/phpunit-polyfills": "^1.0",
+    "wp-phpunit/wp-phpunit": "^6.3"
+  },
+  "scripts": {
+    "test": "phpunit"
+  }
+}
