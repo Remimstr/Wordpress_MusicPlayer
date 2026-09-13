@@ -1,0 +1,168 @@
+/* ========================================================= Track List ========================================================= */
+.composer-player.has-artwork {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+}
+
+.composer-player-artwork {
+  justify-self: end;
+  margin-right: 15%;
+  width: var(--player-artwork-width);
+  max-width: 100%;
+  background: var(--player-bg-elevated);
+}
+
+.composer-player-artwork-image {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+}
+
+.composer-player-artwork-caption {
+  padding: 10px 12px;
+  color: var(--player-text-muted);
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.composer-player-artwork-caption a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.composer-player-artwork-caption a:hover {
+  color: var(--player-accent);
+}
+
+/* ========================================================= Track Rows ========================================================= */
+.composer-tracklist {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  padding-left: 16px;
+  padding-right: 32px;
+}
+
+.composer-track {
+  display: grid;
+  grid-template-columns: var(--player-track-icon-column) minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0;
+  min-height: var(--player-track-min-height);
+  padding: var(--player-track-padding-y) var(--player-track-padding-x);
+  border-bottom: 1px solid var(--player-border);
+  background: var(--player-bg-elevated);
+  cursor: pointer;
+  transition:
+    background-color 160ms ease,
+    color 160ms ease;
+}
+
+.composer-track:first-child {
+  border-top: 1px solid var(--player-border);
+}
+
+.composer-track-play {
+  width: var(--player-control-size);
+  height: var(--player-control-size);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  margin: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.composer-track-play img {
+  width: var(--player-control-icon-size);
+  height: var(--player-control-icon-size);
+  display: block;
+  object-fit: contain;
+  pointer-events: none;
+  filter: brightness(0) invert(1);
+  opacity: 0.65;
+  transition:
+    opacity 160ms ease,
+    transform 160ms ease;
+}
+
+.composer-track:hover .composer-track-play img {
+  opacity: 1;
+}
+
+.composer-track.is-active .composer-track-play img {
+  opacity: 1;
+}
+
+.composer-track-info {
+  min-width: 0;
+}
+
+.composer-track-title {
+  display: block;
+  color: var(--player-text);
+  font-family: var(--player-font-family);
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.3;
+}
+
+.composer-track-style {
+  display: block;
+  margin-top: 4px;
+  color: var(--player-text-muted);
+  font-family: var(--player-font-family);
+  font-size: 13px;
+  line-height: 1.3;
+}
+
+.composer-track-duration {
+  margin-left: var(--player-track-duration-gap);
+  color: var(--player-text-muted);
+  font-family: var(--player-font-family);
+  font-size: 13px;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+/* ========================================================= Mobile ========================================================= */
+@media (max-width: 640px) {
+  .composer-player.has-artwork {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .composer-player-artwork {
+    width: min(100%, var(--player-artwork-width));
+    justify-self: center;
+    margin-right: 0;
+  }
+
+  .composer-tracklist {
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  .composer-track {
+    grid-template-columns: 40px minmax(0, 1fr) auto;
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+
+  .composer-track-title {
+    font-size: 15px;
+  }
+
+  .composer-track-style {
+    font-size: 12px;
+  }
+
+  .composer-track-duration {
+    margin-left: 12px;
+  }
+}

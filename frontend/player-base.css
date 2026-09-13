@@ -1,0 +1,70 @@
+/* ========================================================= Global Variables ========================================================= */
+.composer-player,
+#composer-floating-player {
+  --player-accent: #c87945;
+  --player-accent-hover: #e09a63;
+
+  --player-text: #f1f0eb;
+  --player-text-muted: #a4a39e;
+  --player-text-subtle: #777875;
+
+  --player-bg: #0b0c0e;
+  --player-bg-elevated: #15171a;
+
+  --player-border: rgba(255, 255, 255, 0.09);
+  --player-progress-background: rgba(255, 255, 255, 0.22);
+
+  --player-font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+
+  --player-height: 76px;
+  --player-max-width: 1400px;
+  --player-padding-x: 20px;
+  --player-padding-y: 11px;
+  --player-content-gap: 20px;
+
+  --player-control-size: 38px;
+  --player-play-size: 42px;
+  --player-control-icon-size: 22px;
+  --player-control-gap: 2px;
+
+  --player-track-min-height: 82px;
+  --player-track-padding-x: 20px;
+  --player-track-padding-y: 12px;
+  --player-track-icon-column: 48px;
+  --player-track-duration-gap: 20px;
+
+  --player-artwork-width: clamp(240px, 28vw, 420px);
+
+  --player-progress-height: 7px;
+  --player-progress-track-height: 5px;
+  --player-progress-thumb-size: 12px;
+  --player-progress-time-gap: 14px;
+
+  --player-heading-gap: 8px;
+  --player-heading-margin-bottom: 8px;
+  --player-time-gap: 5px;
+
+  --player-mobile-height: 72px;
+  --player-mobile-padding-x: 13px;
+  --player-mobile-padding-y: 10px;
+  --player-mobile-content-gap: 10px;
+  --player-mobile-control-size: 32px;
+  --player-mobile-play-size: 38px;
+  --player-mobile-title-size: 14px;
+  --player-mobile-style-size: 13px;
+  --player-mobile-time-size: 12px;
+}
+
+/* ========================================================= Base ========================================================= */
+.composer-player {
+  width: 100%;
+  font-family: var(--player-font-family);
+}
+
+/* ========================================================= Focus States ========================================================= */
+.composer-player-button:focus-visible,
+.composer-track-play:focus-visible,
+.composer-player-progress:focus-visible {
+  outline: 2px solid var(--player-accent);
+  outline-offset: 3px;
+}
