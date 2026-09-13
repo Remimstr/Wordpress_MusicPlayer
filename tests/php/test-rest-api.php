@@ -262,4 +262,39 @@ class Test_REST_API extends WP_UnitTestCase {
 			$data
 		);
 	}
+
+    public function test_endpoint_excludes_tracks_with_invalid_audio_attachment() {
+        $track_id = self::factory()->post->create(
+            array(
+                'post_type'   => 'composer_track',
+                'post_status' => 'publish',
+                'post_title'  => 'Invalid Audio',
+            )
+        );
+
+        update_post_meta(
+            $track_id,
+            '_composer_track_order',
+            0
+        );
+
+        update_post_meta(
+            $track_id,
+            '_composer_track_audio',
+            999999
+        );
+
+        $request = new WP_REST_Request(
+            'GET',
+            '/composer-player/v1/tracks'
+        );
+
+        $response = rest_do_request( $request );
+        $data     = $response->get_data();
+
+        $this->assertSame(
+            array(),
+            $data
+        );
+    }
 }
