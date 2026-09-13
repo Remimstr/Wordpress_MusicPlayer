@@ -1,0 +1,73 @@
+name: Test and Deploy
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  php-tests:
+    name: PHP Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: Start WordPress test environment
+        run: npm run wp-env start
+
+      - name: Install Composer dependencies
+        run: |
+          npm run wp-env -- run cli \
+            --env-cwd=wp-content/plugins/Wordpress_MusicPlayer \
+            composer install --no-interaction --prefer-dist
+
+      - name: Run PHPUnit
+        run: |
+          npm run wp-env -- run cli \
+            --env-cwd=wp-content/plugins/Wordpress_MusicPlayer \
+            composer test
+
+  deploy:
+    name: Deploy to Production
+    needs:
+      - php-tests
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Prepare deployment files
+        run: |
+          mkdir -p deploy
+          cp composer-player.php deploy/
+          cp -R admin deploy/
+          cp -R frontend deploy/
+
+      - name: Deploy via SFTP
+        uses: wlixcc/SFTP-Deploy-Action@v1.2.6
+        with:
+          server: ${{ secrets.SFTP_HOST }}
+          username: ${{ secrets.SFTP_USERNAME }}
+          port: ${{ secrets.SFTP_PORT }}
+          ssh_private_key: ${{ secrets.SFTP_PRIVATE_KEY }}
+          ssh_passphrase: ${{ secrets.SFTP_PASSPHRASE }}
+          local_path: "./deploy/*"
+          remote_path: ${{ secrets.SFTP_REMOTE_PATH }}/composer-player
+          sftp_only: true
