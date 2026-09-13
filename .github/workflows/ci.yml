@@ -42,10 +42,31 @@ jobs:
             --env-cwd=wp-content/plugins/Wordpress_MusicPlayer \
             composer test
 
+  js-tests:
+    name: JavaScript Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: Run Vitest
+        run: npm run test:js
+
   deploy:
     name: Deploy to Production
     needs:
       - php-tests
+      - js-tests
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
 
