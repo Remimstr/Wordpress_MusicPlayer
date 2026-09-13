@@ -1,6 +1,6 @@
 <?php
 
-class Test_REST_API extends WP_UnitTestCase {
+class TestRESTAPI extends WP_UnitTestCase {
 
 	private function create_audio_attachment( $filename ) {
 		return self::factory()->post->create(

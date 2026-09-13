@@ -5,7 +5,10 @@
 >
 	<testsuites>
 		<testsuite name="Composer Player">
-			<directory suffix=".php">tests/php</directory>
+			<file>tests/php/test-track-validation.php</file>
+			<file>tests/php/test-track-order.php</file>
+			<file>tests/php/test-rest-api.php</file>
+			<file>tests/php/test-track-reorder.php</file>
 		</testsuite>
 	</testsuites>
 </phpunit>

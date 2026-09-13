@@ -1,6 +1,6 @@
 <?php
 
-class Test_Track_Order extends WP_UnitTestCase {
+class TestTrackOrder extends WP_UnitTestCase {
 
 	public function setUp(): void {
 		parent::setUp();
