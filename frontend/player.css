@@ -33,7 +33,7 @@
   --player-track-icon-column: 48px;
   --player-track-duration-gap: 20px;
 
-  --player-artwork-width: 280px;
+  --player-artwork-width: clamp(240px, 28vw, 420px);
 
   --player-progress-height: 7px;
   --player-progress-track-height: 5px;
@@ -63,22 +63,16 @@
 
 .composer-player.has-artwork {
   display: grid;
-  grid-template-columns: var(--player-artwork-width) minmax(0, 1fr);
-  align-items: stretch;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
 }
 
 .composer-player-artwork {
-  min-width: 0;
-  aspect-ratio: 1;
+  justify-self: end;
+  margin-right: 15%;
+  width: var(--player-artwork-width);
+  max-width: 100%;
   background: var(--player-bg-elevated);
-}
-
-.composer-player-artwork[hidden] {
-  display: none;
-}
-
-.composer-player-artwork {
-  overflow: hidden;
 }
 
 .composer-player-artwork-caption a {
@@ -99,7 +93,7 @@
 }
 
 .composer-player-artwork-caption {
-  padding: 10px 12px 0;
+  padding: 10px 12px;
   color: var(--player-text-muted);
   font-size: 13px;
   line-height: 1.4;
@@ -107,6 +101,10 @@
 
 .composer-tracklist {
   width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  padding-left: 16px;
+  padding-right: 32px;
 }
 
 .composer-track {
@@ -451,10 +449,17 @@
 
   .composer-player.has-artwork {
     grid-template-columns: 1fr;
+    gap: 20px;
   }
 
   .composer-player-artwork {
-    aspect-ratio: 16 / 9;
+    width: min(100%, var(--player-artwork-width));
+    justify-self: center;
+  }
+
+  .composer-tracklist {
+    padding-left: 0;
+    padding-right: 0;
   }
 
   .composer-track {
