@@ -33,3 +33,4 @@ jobs:
           ssh_passphrase: ${{ secrets.SFTP_PASSPHRASE }}
           local_path: "./deploy/*"
           remote_path: ${{ secrets.SFTP_REMOTE_PATH }}/composer-player
+          sftp_only: true
