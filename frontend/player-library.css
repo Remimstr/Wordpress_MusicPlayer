@@ -6,22 +6,45 @@
 }
 
 .composer-player-artwork {
-  justify-self: end;
-  margin-right: 15%;
   min-width: 0;
-  max-width: 100%;
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  padding-right: 15%;
+  box-sizing: border-box;
+}
+
+.composer-player-artwork-content {
+  width: min(100%, 500px);
+  height: 500px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
 .composer-player-artwork-image {
   display: block;
-  height: clamp(280px, 30vw, 400px);
-  width: auto;
   max-width: 100%;
+  max-height: 420px;
+  width: auto;
+  height: auto;
+
   border: 1px solid var(--player-border);
   border-radius: 10px;
   box-shadow:
     0 10px 30px rgba(0, 0, 0, 0.22),
     0 2px 8px rgba(0, 0, 0, 0.16);
+}
+
+.composer-player-artwork-caption {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 12px 0;
+  color: var(--player-text-muted);
+  font-size: 13px;
+  line-height: 1.4;
+  text-align: center;
 }
 
 .composer-player-artwork-caption {
@@ -134,7 +157,6 @@
   white-space: nowrap;
 }
 
-/* ========================================================= Mobile ========================================================= */
 @media (max-width: 640px) {
   .composer-player.has-artwork {
     grid-template-columns: 1fr;
@@ -143,19 +165,34 @@
 
   .composer-player-artwork {
     width: 100%;
-    max-width: 100%;
-    justify-self: center;
-    margin-right: 0;
-    text-align: center;
+    padding-right: 0;
+    justify-content: center;
+  }
+
+  .composer-player-artwork-content {
+    width: min(100%, 420px);
+    height: 360px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
   }
 
   .composer-player-artwork-image {
-    height: clamp(240px, 70vw, 320px);
+    display: block;
     width: auto;
+    height: auto;
     max-width: 100%;
+    max-height: 320px;
     margin: 0 auto;
   }
-}
+
+  .composer-player-artwork-caption {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 10px 12px;
+    text-align: center;
+  }
 
   .composer-tracklist {
     padding-left: 0;

@@ -119,13 +119,15 @@ class Composer_Player {
 	public function render_shortcode() {
 		return '
 			<div class="composer-player">
-				<div class="composer-player-artwork" hidden>
-					<img
+				<div class="composer-player-artwork">
+					<div class="composer-player-artwork-content">
+						<img
 						class="composer-player-artwork-image"
 						src=""
 						alt=""
-					>
-					<div class="composer-player-artwork-caption"></div>
+						>
+						<div class="composer-player-artwork-caption"></div>
+					</div>
 				</div>
 
 				<div
