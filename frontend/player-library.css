@@ -29,11 +29,18 @@
   justify-content: center;
 
   opacity: 0;
-  transition: opacity 650ms ease;
+  visibility: hidden;
+  transition:
+    opacity 650ms ease,
+    visibility 0s linear 650ms;
 }
 
 .composer-player-artwork-image-container.is-active {
   opacity: 1;
+  visibility: visible;
+  transition:
+    opacity 650ms ease,
+    visibility 0s linear 0s;
 }
 
 .composer-player-artwork-image-container .composer-player-artwork-image {
