@@ -201,6 +201,17 @@ function updateArtwork(track) {
   activeArtworkGroup = incomingGroup;
 }
 
+function preloadArtwork(tracks) {
+  tracks.forEach((track) => {
+    if (!track.image || !track.image.url) {
+      return;
+    }
+
+    const image = new Image();
+    image.src = track.image.url;
+  });
+}
+
 function loadTrackDurations() {
   tracks.forEach((track, index) => {
     const metadataAudio = new Audio();
@@ -307,6 +318,8 @@ export function initializePlayer() {
     })
     .then((data) => {
       tracks = data;
+
+      preloadArtwork(tracks);
 
       renderTracklist(
         tracklist,
