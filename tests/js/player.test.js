@@ -45,15 +45,7 @@ describe("player", () => {
     document.body.innerHTML = `
       <div class="composer-player">
         <div class="composer-player-artwork">
-          <div class="composer-player-artwork-image-container-a">
-            <img class="composer-player-artwork-image">
-            <div class="composer-player-artwork-caption"></div>
-          </div>
-
-          <div class="composer-player-artwork-image-container-b">
-            <img class="composer-player-artwork-image">
-            <div class="composer-player-artwork-caption"></div>
-          </div>
+          <div class="composer-player-artwork-content"></div>
         </div>
 
         <div id="composer-floating-player">
@@ -103,6 +95,21 @@ describe("player", () => {
     };
 
     mockAudio();
+
+    const originalCreateElement = document.createElement.bind(document);
+
+    vi.spyOn(document, "createElement").mockImplementation((tagName, options) => {
+      const element = originalCreateElement(tagName, options);
+
+      if (tagName.toLowerCase() === "img") {
+        Object.defineProperty(element, "complete", {
+          configurable: true,
+          value: true,
+        });
+      }
+
+      return element;
+    });
   });
 
   it("loads the first track", async () => {
@@ -492,7 +499,7 @@ describe("player", () => {
     expect(audio.play).toHaveBeenCalled();
   });
 
-  it("crossfades artwork between tracks", async () => {
+    it("crossfades artwork between tracks", async () => {
     globalThis.fetch = vi.fn().mockResolvedValue({
       ok: true,
       json: () => Promise.resolve(tracks),
@@ -500,78 +507,82 @@ describe("player", () => {
 
     await import("../../frontend/player.js");
 
-    const artworkGroupA = document.querySelector(
-      ".composer-player-artwork-image-container-a"
-    );
-
-    const artworkGroupB = document.querySelector(
-      ".composer-player-artwork-image-container-b"
-    );
-
-    const artworkImageA = artworkGroupA.querySelector(
-      ".composer-player-artwork-image"
-    );
-
-    const artworkImageB = artworkGroupB.querySelector(
-      ".composer-player-artwork-image"
-    );
-
-    const artworkCaptionA = artworkGroupA.querySelector(
-      ".composer-player-artwork-caption"
-    );
-
-    const artworkCaptionB = artworkGroupB.querySelector(
-      ".composer-player-artwork-caption"
+    const artworkContent = document.querySelector(
+      ".composer-player-artwork-content"
     );
 
     const rows = document.querySelectorAll(".composer-track");
 
     await vi.waitFor(() => {
       expect(
-        document.querySelector(".composer-player-title").textContent
-      ).toBe("Track One");
+        artworkContent.querySelector(
+          ".composer-player-artwork-image-container.is-active"
+        )
+      ).not.toBeNull();
     });
 
-    // The first updateArtwork() call switches from the
-    // initial A group to B.
-    expect(artworkGroupB.classList.contains("is-active")).toBe(true);
-    expect(artworkGroupA.classList.contains("is-active")).toBe(false);
+    const firstGroup = artworkContent.querySelector(
+      ".composer-player-artwork-image-container"
+    );
 
-    expect(artworkImageB.src).toContain("/track-one.jpg");
-    expect(artworkImageB.alt).toBe("Track One artwork");
-    expect(artworkCaptionB.innerHTML).toBe("Track One caption");
+    expect(firstGroup.querySelector("img").src).toContain("track-one.jpg");
+    expect(firstGroup.querySelector("img").alt).toBe("Track One artwork");
+    expect(
+      firstGroup.querySelector(".composer-player-artwork-caption").innerHTML
+    ).toBe("Track One caption");
 
     rows[1].click();
 
-    expect(artworkGroupA.classList.contains("is-active")).toBe(true);
-    expect(artworkGroupB.classList.contains("is-active")).toBe(false);
+    const incomingGroup = artworkContent.querySelector(
+      ".composer-player-artwork-image-container.is-entering"
+    );
 
-    expect(artworkImageA.src).toContain("/track-two.jpg");
-    expect(artworkImageA.alt).toBe("Track Two artwork");
-    expect(artworkCaptionA.innerHTML).toBe("Track Two caption");
+    expect(incomingGroup).not.toBeNull();
+    expect(incomingGroup.querySelector("img").src).toContain(
+      "track-two.jpg"
+    );
+    expect(incomingGroup.querySelector("img").alt).toBe("Track Two artwork");
+    expect(
+      incomingGroup.querySelector(".composer-player-artwork-caption").innerHTML
+    ).toBe("Track Two caption");
 
-    rows[0].click();
+    expect(
+      artworkContent.querySelectorAll(
+        ".composer-player-artwork-image-container"
+      )
+    ).toHaveLength(2);
 
-    expect(artworkGroupB.classList.contains("is-active")).toBe(true);
-    expect(artworkGroupA.classList.contains("is-active")).toBe(false);
+    await vi.waitFor(() => {
+      expect(incomingGroup.classList.contains("is-active")).toBe(true);
+      expect(firstGroup.classList.contains("is-exiting")).toBe(true);
+    });
 
-    expect(artworkImageB.src).toContain("/track-one.jpg");
-    expect(artworkImageB.alt).toBe("Track One artwork");
-    expect(artworkCaptionB.innerHTML).toBe("Track One caption");
+    firstGroup.dispatchEvent(new Event("transitionend"));
+
+    await vi.waitFor(() => {
+      expect(
+        artworkContent.querySelectorAll(
+          ".composer-player-artwork-image-container"
+        )
+      ).toHaveLength(1);
+    });
+
+    expect(
+      artworkContent.querySelector(
+        ".composer-player-artwork-image-container.is-active"
+      )
+    ).toBe(incomingGroup);
   });
 
-    it("handles a track without artwork", async () => {
-    const tracksWithoutArtwork = [
-      {
-        title: "Track Without Artwork",
-        style: "Ambient",
-        url: "/track-no-artwork.mp3",
-      },
-    ];
+  it("handles a track without artwork", async () => {
+    const trackWithoutArtwork = {
+      ...tracks[0],
+      image: null,
+    };
 
     globalThis.fetch = vi.fn().mockResolvedValue({
       ok: true,
-      json: () => Promise.resolve(tracksWithoutArtwork),
+      json: () => Promise.resolve([trackWithoutArtwork]),
     });
 
     await import("../../frontend/player.js");
@@ -579,104 +590,25 @@ describe("player", () => {
     await vi.waitFor(() => {
       expect(
         document.querySelector(".composer-player-title").textContent
-      ).toBe("Track Without Artwork");
+      ).toBe("Track One");
     });
 
     const artwork = document.querySelector(".composer-player-artwork");
-
-    const artworkGroupA = document.querySelector(
-      ".composer-player-artwork-image-container-a"
-    );
-
-    const artworkGroupB = document.querySelector(
-      ".composer-player-artwork-image-container-b"
-    );
-
-    const artworkImageA = artworkGroupA.querySelector(
-      ".composer-player-artwork-image"
-    );
-
-    const artworkImageB = artworkGroupB.querySelector(
-      ".composer-player-artwork-image"
-    );
-
-    const artworkCaptionA = artworkGroupA.querySelector(
-      ".composer-player-artwork-caption"
-    );
-
-    const artworkCaptionB = artworkGroupB.querySelector(
-      ".composer-player-artwork-caption"
+    const artworkContent = document.querySelector(
+      ".composer-player-artwork-content"
     );
 
     expect(artwork.hidden).toBe(false);
     expect(artwork.classList.contains("is-placeholder")).toBe(true);
 
-    expect(artworkGroupA.hidden).toBe(true);
-    expect(artworkGroupB.hidden).toBe(true);
-
-    expect(artworkImageA.getAttribute("src")).toBe(null);
-    expect(artworkImageB.getAttribute("src")).toBe(null);
-
-    expect(artworkCaptionA.innerHTML).toBe("");
-    expect(artworkCaptionB.innerHTML).toBe("");
+    expect(
+      artworkContent.querySelectorAll(
+        ".composer-player-artwork-image-container"
+      )
+    ).toHaveLength(0);
   });
 
-  it("alternates artwork groups across consecutive track changes", async () => {
-    const threeTracks = [
-      ...tracks,
-      {
-        title: "Track Three",
-        style: "Ambient",
-        url: "/track-three.mp3",
-        image: {
-          url: "/track-three.jpg",
-          alt: "Track Three artwork",
-          caption: "Track Three caption",
-        },
-      },
-    ];
-
-    globalThis.fetch = vi.fn().mockResolvedValue({
-      ok: true,
-      json: () => Promise.resolve(threeTracks),
-    });
-
-    await import("../../frontend/player.js");
-
-    await vi.waitFor(() => {
-      expect(
-        document.querySelector(".composer-player-title").textContent
-      ).toBe("Track One");
-    });
-
-    const rows = document.querySelectorAll(".composer-track");
-
-    const artworkGroupA = document.querySelector(
-      ".composer-player-artwork-image-container-a"
-    );
-
-    const artworkGroupB = document.querySelector(
-      ".composer-player-artwork-image-container-b"
-    );
-
-    // First track uses B.
-    expect(artworkGroupB.classList.contains("is-active")).toBe(true);
-    expect(artworkGroupA.classList.contains("is-active")).toBe(false);
-
-    // Second track switches to A.
-    rows[1].click();
-
-    expect(artworkGroupA.classList.contains("is-active")).toBe(true);
-    expect(artworkGroupB.classList.contains("is-active")).toBe(false);
-
-    // Third track switches back to B.
-    rows[2].click();
-
-    expect(artworkGroupB.classList.contains("is-active")).toBe(true);
-    expect(artworkGroupA.classList.contains("is-active")).toBe(false);
-  });
-
-  it("does not switch artwork groups when the active track is selected again", async () => {
+  it("replaces the previous artwork when changing tracks", async () => {
     globalThis.fetch = vi.fn().mockResolvedValue({
       ok: true,
       json: () => Promise.resolve(tracks),
@@ -684,38 +616,97 @@ describe("player", () => {
 
     await import("../../frontend/player.js");
 
-    await vi.waitFor(() => {
-      expect(
-        document.querySelector(".composer-player-title").textContent
-      ).toBe("Track One");
-    });
+    const artworkContent = document.querySelector(
+      ".composer-player-artwork-content"
+    );
 
     const rows = document.querySelectorAll(".composer-track");
 
-    const artworkGroupA = document.querySelector(
-      ".composer-player-artwork-image-container-a"
+    await vi.waitFor(() => {
+      expect(
+        artworkContent.querySelector(
+          ".composer-player-artwork-image-container.is-active"
+        )
+      ).not.toBeNull();
+    });
+
+    const firstGroup = artworkContent.querySelector(
+      ".composer-player-artwork-image-container"
     );
 
-    const artworkGroupB = document.querySelector(
-      ".composer-player-artwork-image-container-b"
+    rows[1].click();
+
+    const secondGroup = artworkContent.querySelector(
+      ".composer-player-artwork-image-container.is-entering"
     );
 
+    await vi.waitFor(() => {
+      expect(secondGroup.classList.contains("is-active")).toBe(true);
+      expect(firstGroup.classList.contains("is-exiting")).toBe(true);
+    });
+
+    firstGroup.dispatchEvent(new Event("transitionend"));
+
+    await vi.waitFor(() => {
+      expect(
+        artworkContent.querySelectorAll(
+          ".composer-player-artwork-image-container"
+        )
+      ).toHaveLength(1);
+    });
+
+    expect(
+      artworkContent.querySelector(
+        ".composer-player-artwork-image-container"
+      )
+    ).toBe(secondGroup);
+
+    expect(secondGroup.querySelector("img").src).toContain("track-two.jpg");
+  });
+
+  it("does not change artwork when the active track is selected again", async () => {
+    globalThis.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve(tracks),
+    });
+
+    await import("../../frontend/player.js");
+
+    const artworkContent = document.querySelector(
+      ".composer-player-artwork-content"
+    );
+
+    const rows = document.querySelectorAll(".composer-track");
     const audio = document.querySelector(".composer-player-audio");
 
-    // Track One initially uses B.
-    expect(artworkGroupB.classList.contains("is-active")).toBe(true);
-    expect(artworkGroupA.classList.contains("is-active")).toBe(false);
+    await vi.waitFor(() => {
+      expect(
+        artworkContent.querySelector(
+          ".composer-player-artwork-image-container.is-active"
+        )
+      ).not.toBeNull();
+    });
 
-    const loadCallCount = audio.load.mock.calls.length;
+    const initialGroup = artworkContent.querySelector(
+      ".composer-player-artwork-image-container"
+    );
 
-    // Select the already-active track again.
+    const initialLoadCallCount = audio.load.mock.calls.length;
+
     rows[0].click();
 
-    // Artwork should remain on B.
-    expect(artworkGroupB.classList.contains("is-active")).toBe(true);
-    expect(artworkGroupA.classList.contains("is-active")).toBe(false);
+    expect(
+      artworkContent.querySelectorAll(
+        ".composer-player-artwork-image-container"
+      )
+    ).toHaveLength(1);
 
-    // Selecting the active track should not reload the audio either.
-    expect(audio.load).toHaveBeenCalledTimes(loadCallCount);
+    expect(
+      artworkContent.querySelector(
+        ".composer-player-artwork-image-container"
+      )
+    ).toBe(initialGroup);
+
+    expect(audio.load).toHaveBeenCalledTimes(initialLoadCallCount);
   });
 });

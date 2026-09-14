@@ -16,25 +16,8 @@ const audio = document.querySelector(".composer-player-audio");
 const tracklist = document.querySelector(".composer-tracklist");
 const player = document.querySelector(".composer-player");
 const artwork = document.querySelector(".composer-player-artwork");
-const artworkGroupA = document.querySelector(
-  ".composer-player-artwork-image-container-a"
-);
-const artworkGroupB = document.querySelector(
-  ".composer-player-artwork-image-container-b"
-);
-
-const artworkImageA = artworkGroupA?.querySelector(
-  ".composer-player-artwork-image"
-);
-const artworkImageB = artworkGroupB?.querySelector(
-  ".composer-player-artwork-image"
-);
-
-const artworkCaptionA = artworkGroupA?.querySelector(
-  ".composer-player-artwork-caption"
-);
-const artworkCaptionB = artworkGroupB?.querySelector(
-  ".composer-player-artwork-caption"
+const artworkContent = document.querySelector(
+  ".composer-player-artwork-content"
 );
 const previousButton = document.querySelector(".composer-player-previous");
 const playButton = document.querySelector(".composer-player-play");
@@ -135,70 +118,87 @@ function updateTrackRows() {
   });
 }
 
-let activeArtworkGroup = artworkGroupA;
-
 function updateArtwork(track) {
-  if (
-    !artwork ||
-    !artworkGroupA ||
-    !artworkGroupB ||
-    !artworkImageA ||
-    !artworkImageB ||
-    !artworkCaptionA ||
-    !artworkCaptionB ||
-    !player
-  ) {
+  if (!artwork || !artworkContent || !player) {
     return;
   }
 
   if (!track.image || !track.image.url) {
-    artworkImageA.removeAttribute("src");
-    artworkImageB.removeAttribute("src");
-
-    artworkGroupA.hidden = true;
-    artworkGroupB.hidden = true;
-
-    artworkCaptionA.innerHTML = "";
-    artworkCaptionB.innerHTML = "";
+    artworkContent.innerHTML = "";
 
     artwork.hidden = false;
     artwork.classList.add("is-placeholder");
     player.classList.add("has-artwork");
 
-    activeArtworkGroup = artworkGroupA;
-
     return;
   }
 
-  const incomingGroup =
-    activeArtworkGroup === artworkGroupA
-      ? artworkGroupB
-      : artworkGroupA;
+  const currentGroup = artworkContent.querySelector(
+    ".composer-player-artwork-image-container"
+  );
 
-  const incomingImage =
-    incomingGroup === artworkGroupA
-      ? artworkImageA
-      : artworkImageB;
+  const incomingGroup = document.createElement("div");
+  incomingGroup.className =
+    "composer-player-artwork-image-container is-entering";
 
-  const incomingCaption =
-    incomingGroup === artworkGroupA
-      ? artworkCaptionA
-      : artworkCaptionB;
+  const image = document.createElement("img");
+  image.className = "composer-player-artwork-image";
+  image.src = track.image.url;
+  image.alt = track.image.alt || "";
 
-  incomingImage.src = track.image.url;
-  incomingImage.alt = track.image.alt || "";
-  incomingCaption.innerHTML = track.image.caption || "";
+  const caption = document.createElement("div");
+  caption.className = "composer-player-artwork-caption";
+  caption.innerHTML = track.image.caption || "";
 
-  incomingGroup.hidden = false;
+  incomingGroup.appendChild(image);
+  incomingGroup.appendChild(caption);
+  artworkContent.appendChild(incomingGroup);
 
   artwork.hidden = false;
   artwork.classList.remove("is-placeholder");
   player.classList.add("has-artwork");
 
-  incomingGroup.classList.add("is-active");
-  activeArtworkGroup.classList.remove("is-active");
+  const showIncoming = () => {
+    // Force the initial opacity: 0 state to be committed first.
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        incomingGroup.classList.remove("is-entering");
+        incomingGroup.classList.add("is-active");
 
-  activeArtworkGroup = incomingGroup;
+        if (!currentGroup) {
+          return;
+        }
+
+        currentGroup.classList.remove("is-active");
+        currentGroup.classList.add("is-exiting");
+
+        let cleanedUp = false;
+
+        const cleanup = () => {
+          if (cleanedUp) {
+            return;
+          }
+
+          cleanedUp = true;
+          currentGroup.remove();
+        };
+
+        currentGroup.addEventListener("transitionend", cleanup, {
+          once: true,
+        });
+
+      // Fallback for browsers that fail to fire transitionend.
+      setTimeout(cleanup, 700);
+    });
+  });
+};
+
+  if (image.complete) {
+    showIncoming();
+  } else {
+    image.addEventListener("load", showIncoming, { once: true });
+    image.addEventListener("error", showIncoming, { once: true });
+  }
 }
 
 function preloadArtwork(tracks) {

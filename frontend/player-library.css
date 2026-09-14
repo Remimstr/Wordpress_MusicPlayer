@@ -23,24 +23,30 @@
 .composer-player-artwork-image-container {
   position: absolute;
   inset: 0;
+
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
   justify-content: center;
 
-  opacity: 0;
-  visibility: hidden;
-  transition:
-    opacity 650ms ease,
-    visibility 0s linear 650ms;
-}
-
-.composer-player-artwork-image-container.is-active {
   opacity: 1;
   visibility: visible;
-  transition:
-    opacity 650ms ease,
-    visibility 0s linear 0s;
+
+  transition: opacity 650ms ease;
+
+  will-change: opacity;
+  backface-visibility: hidden;
+  pointer-events: auto;
+}
+
+.composer-player-artwork-image-container.is-entering {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.composer-player-artwork-image-container.is-exiting {
+  opacity: 0;
+  pointer-events: none;
 }
 
 .composer-player-artwork-image-container .composer-player-artwork-image {
