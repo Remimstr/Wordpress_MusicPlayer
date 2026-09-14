@@ -1,4 +1,4 @@
-/* ========================================================= Track List ========================================================= */
+/* ========================================================= Artwork ========================================================= */
 .composer-player.has-artwork {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
@@ -15,20 +15,32 @@
 }
 
 .composer-player-artwork-content {
+  position: relative;
   width: min(100%, 500px);
   height: 500px;
+}
+
+.composer-player-artwork-image-container {
+  position: absolute;
+  inset: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+
+  opacity: 0;
+  transition: opacity 650ms ease;
 }
 
-.composer-player-artwork-image {
-  display: block;
-  max-width: 100%;
-  max-height: 420px;
+.composer-player-artwork-image-container.is-active {
+  opacity: 1;
+}
+
+.composer-player-artwork-image-container .composer-player-artwork-image {
   width: auto;
   height: auto;
+  max-width: 100%;
+  max-height: calc(100% - 40px);
 
   border: 1px solid var(--player-border);
   border-radius: 10px;
@@ -45,13 +57,6 @@
   font-size: 13px;
   line-height: 1.4;
   text-align: center;
-}
-
-.composer-player-artwork-caption {
-  padding: 10px 12px;
-  color: var(--player-text-muted);
-  font-size: 13px;
-  line-height: 1.4;
 }
 
 .composer-player-artwork-caption a {

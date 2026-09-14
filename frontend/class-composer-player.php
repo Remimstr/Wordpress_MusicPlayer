@@ -121,12 +121,23 @@ class Composer_Player {
 			<div class="composer-player">
 				<div class="composer-player-artwork">
 					<div class="composer-player-artwork-content">
-						<img
-						class="composer-player-artwork-image"
-						src=""
-						alt=""
-						>
-						<div class="composer-player-artwork-caption"></div>
+						<div class="composer-player-artwork-image-container composer-player-artwork-image-container-a">
+							<img
+							class="composer-player-artwork-image"
+							src=""
+							alt=""
+							>
+							<div class="composer-player-artwork-caption"></div>
+						</div>
+
+						<div class="composer-player-artwork-image-container composer-player-artwork-image-container-b">
+							<img
+							class="composer-player-artwork-image"
+							src=""
+							alt=""
+							>
+							<div class="composer-player-artwork-caption"></div>
+						</div>
 					</div>
 				</div>
 

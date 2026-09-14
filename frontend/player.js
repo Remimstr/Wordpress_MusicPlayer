@@ -16,10 +16,24 @@ const audio = document.querySelector(".composer-player-audio");
 const tracklist = document.querySelector(".composer-tracklist");
 const player = document.querySelector(".composer-player");
 const artwork = document.querySelector(".composer-player-artwork");
-const artworkImage = document.querySelector(
+const artworkGroupA = document.querySelector(
+  ".composer-player-artwork-image-container-a"
+);
+const artworkGroupB = document.querySelector(
+  ".composer-player-artwork-image-container-b"
+);
+
+const artworkImageA = artworkGroupA?.querySelector(
   ".composer-player-artwork-image"
 );
-const artworkCaption = document.querySelector(
+const artworkImageB = artworkGroupB?.querySelector(
+  ".composer-player-artwork-image"
+);
+
+const artworkCaptionA = artworkGroupA?.querySelector(
+  ".composer-player-artwork-caption"
+);
+const artworkCaptionB = artworkGroupB?.querySelector(
   ".composer-player-artwork-caption"
 );
 const previousButton = document.querySelector(".composer-player-previous");
@@ -121,34 +135,70 @@ function updateTrackRows() {
   });
 }
 
+let activeArtworkGroup = artworkGroupA;
+
 function updateArtwork(track) {
-  if (!artwork || !artworkImage || !artworkCaption || !player) {
+  if (
+    !artwork ||
+    !artworkGroupA ||
+    !artworkGroupB ||
+    !artworkImageA ||
+    !artworkImageB ||
+    !artworkCaptionA ||
+    !artworkCaptionB ||
+    !player
+  ) {
     return;
   }
 
   if (!track.image || !track.image.url) {
-    artworkImage.removeAttribute("src");
-    artworkImage.alt = "";
-    artworkImage.hidden = true;
+    artworkImageA.removeAttribute("src");
+    artworkImageB.removeAttribute("src");
 
-    artworkCaption.innerHTML = "";
+    artworkGroupA.hidden = true;
+    artworkGroupB.hidden = true;
+
+    artworkCaptionA.innerHTML = "";
+    artworkCaptionB.innerHTML = "";
 
     artwork.hidden = false;
     artwork.classList.add("is-placeholder");
     player.classList.add("has-artwork");
 
+    activeArtworkGroup = artworkGroupA;
+
     return;
   }
 
-  artworkImage.src = track.image.url;
-  artworkImage.alt = track.image.alt || "";
-  artworkImage.hidden = false;
+  const incomingGroup =
+    activeArtworkGroup === artworkGroupA
+      ? artworkGroupB
+      : artworkGroupA;
 
-  artworkCaption.innerHTML = track.image.caption || "";
+  const incomingImage =
+    incomingGroup === artworkGroupA
+      ? artworkImageA
+      : artworkImageB;
+
+  const incomingCaption =
+    incomingGroup === artworkGroupA
+      ? artworkCaptionA
+      : artworkCaptionB;
+
+  incomingImage.src = track.image.url;
+  incomingImage.alt = track.image.alt || "";
+  incomingCaption.innerHTML = track.image.caption || "";
+
+  incomingGroup.hidden = false;
 
   artwork.hidden = false;
   artwork.classList.remove("is-placeholder");
   player.classList.add("has-artwork");
+
+  incomingGroup.classList.add("is-active");
+  activeArtworkGroup.classList.remove("is-active");
+
+  activeArtworkGroup = incomingGroup;
 }
 
 function loadTrackDurations() {
