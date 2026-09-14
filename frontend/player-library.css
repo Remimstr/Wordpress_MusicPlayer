@@ -1,23 +1,27 @@
 /* ========================================================= Track List ========================================================= */
 .composer-player.has-artwork {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   align-items: center;
 }
 
 .composer-player-artwork {
   justify-self: end;
   margin-right: 15%;
-  width: var(--player-artwork-width);
+  min-width: 0;
   max-width: 100%;
-  background: var(--player-bg-elevated);
 }
 
 .composer-player-artwork-image {
   display: block;
-  width: 100%;
-  aspect-ratio: 1 / 1;
-  object-fit: cover;
+  height: clamp(280px, 30vw, 400px);
+  width: auto;
+  max-width: 100%;
+  border: 1px solid var(--player-border);
+  border-radius: 10px;
+  box-shadow:
+    0 10px 30px rgba(0, 0, 0, 0.22),
+    0 2px 8px rgba(0, 0, 0, 0.16);
 }
 
 .composer-player-artwork-caption {
@@ -138,10 +142,20 @@
   }
 
   .composer-player-artwork {
-    width: min(100%, var(--player-artwork-width));
+    width: 100%;
+    max-width: 100%;
     justify-self: center;
     margin-right: 0;
+    text-align: center;
   }
+
+  .composer-player-artwork-image {
+    height: clamp(240px, 70vw, 320px);
+    width: auto;
+    max-width: 100%;
+    margin: 0 auto;
+  }
+}
 
   .composer-tracklist {
     padding-left: 0;
