@@ -64,6 +64,15 @@ class Composer_Tracks {
 		$audio_attachment = get_post_meta( $post->ID, '_composer_track_audio', true );
 		$image_attachment = get_post_meta( $post->ID, '_composer_track_image', true );
 	    $image_caption    = get_post_meta( $post->ID, '_composer_track_image_caption', true );
+		$gain_db = get_post_meta(
+			$post->ID,
+			'_composer_track_gain_db',
+			true
+		);
+
+		if ( '' === $gain_db ) {
+			$gain_db = '0.0';
+		}
 
 		wp_nonce_field(
 			'composer_track_details',
@@ -116,6 +125,31 @@ class Composer_Tracks {
 			>
 				Remove
 			</button>
+		</p>
+
+		<p>
+			<label for="composer_track_gain_db">
+				<strong>Gain</strong>
+			</label>
+		</p>
+
+		<p>
+			<input
+				type="number"
+				id="composer_track_gain_db"
+				name="composer_track_gain_db"
+				value="<?php echo esc_attr( $gain_db ); ?>"
+				min="-12"
+				max="6"
+				step="0.1"
+				style="width: 100px;"
+			>
+			<span> dB</span>
+		</p>
+
+		<p class="description">
+			Adjusts this track's playback level on the portfolio without changing
+			the audio file. Use 0 for no adjustment.
 		</p>
 
 		<p
@@ -325,6 +359,22 @@ class Composer_Tracks {
 			return;
 		}
 
+		$submitted_gain_db = isset( $_POST['composer_track_gain_db'] )
+			? (float) sanitize_text_field(
+				wp_unslash( $_POST['composer_track_gain_db'] )
+			)
+			: 0.0;
+
+		$submitted_gain_db = max(
+			-12.0,
+			min( 6.0, $submitted_gain_db )
+		);
+
+		$submitted_gain_db = round(
+			$submitted_gain_db,
+			1
+		);
+
 		/*
 		 * Only update metadata after validation succeeds.
 		 */
@@ -350,6 +400,12 @@ class Composer_Tracks {
 			$post_id,
 			'_composer_track_image_caption',
 			$submitted_image_caption
+		);
+
+		update_post_meta(
+			$post_id,
+			'_composer_track_gain_db',
+			$submitted_gain_db
 		);
 
 		$this->ensure_track_order( $post_id );

@@ -38,6 +38,33 @@ const floatingPlayer = document.getElementById(
 
 let currentTrackIndex = 0;
 
+let audioContext;
+let gainNode;
+
+function initializeAudioGain() {
+  audioContext = new AudioContext();
+
+  const source = audioContext.createMediaElementSource(audio);
+
+  gainNode = audioContext.createGain();
+
+  source.connect(gainNode);
+  gainNode.connect(audioContext.destination);
+}
+
+function dbToLinearGain(db) {
+  return 10 ** (db / 20);
+}
+
+function setTrackGain(track) {
+    const gainDb = Number(track.gainDb ?? 0);
+    const gain = dbToLinearGain(gainDb);
+    const now = audioContext.currentTime;
+
+    gainNode.gain.cancelScheduledValues(now);
+    gainNode.gain.setTargetAtTime(gain, now, 0.01);
+}
+
 function setButtonIcon(button, src) {
   const icon = button.querySelector("img");
 
@@ -253,6 +280,8 @@ function loadTrack(index) {
 
   const track = tracks[index];
 
+  setTrackGain(track);
+
   audio.src = track.url;
   audio.load();
 
@@ -278,8 +307,10 @@ function playTrack(index) {
     loadTrack(index);
   }
 
-  // Set the icon immediately so changing tracks doesn't
-  // briefly show the play icon before the audio "play" event fires.
+  if (audioContext.state === "suspended") {
+    audioContext.resume();
+  }
+
   setButtonIcon(playButton, icons.pause);
   playButton.setAttribute("aria-label", "Pause");
 
@@ -307,6 +338,7 @@ export function initializePlayer() {
   }
 
   initializePlayerIcons();
+  initializeAudioGain();
 
   fetch(config.tracksUrl)
     .then((response) => {
@@ -339,15 +371,19 @@ export function initializePlayer() {
       console.error("Could not load tracks:", error);
     });
 
-  playButton.addEventListener("click", () => {
-    if (audio.paused) {
-      audio.play().catch((error) => {
-        console.error("Unable to play audio:", error);
-      });
-    } else {
-      audio.pause();
-    }
-  });
+    playButton.addEventListener("click", () => {
+      if (audio.paused) {
+        if (audioContext.state === "suspended") {
+          audioContext.resume();
+        }
+
+        audio.play().catch((error) => {
+          console.error("Unable to play audio:", error);
+        });
+      } else {
+        audio.pause();
+      }
+    });
 
   previousButton.addEventListener("click", () => {
     const previousIndex = getPreviousTrackIndex(

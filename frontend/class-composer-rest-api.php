@@ -57,6 +57,18 @@ class Composer_REST_API {
 				continue;
 			}
 
+			$gain_db = get_post_meta(
+				$track->ID,
+				'_composer_track_gain_db',
+				true
+			);
+
+			if ( '' === $gain_db ) {
+				$gain_db = 0.0;
+			}
+
+			$gain_db = (float) $gain_db;
+
 			$image_attachment = get_post_meta(
 				$track->ID,
 				'_composer_track_image',
@@ -93,6 +105,7 @@ class Composer_REST_API {
 				'title' => $track->post_title,
 				'style' => $style,
 				'url'   => $audio_url,
+				'gainDb'  => $gain_db,
 				'image' => $image,
 			);
 		}
