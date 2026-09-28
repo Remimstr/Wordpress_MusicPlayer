@@ -153,7 +153,7 @@ class TestRESTAPI extends WP_UnitTestCase {
 		$this->assertCount( 1, $data );
 
 		$this->assertSame(
-			array( 'id', 'title', 'style', 'url' , 'image'),
+			array( 'id', 'title', 'style', 'url', 'gainDb', 'image' ),
 			array_keys( $data[0] )
 		);
 
@@ -175,6 +175,11 @@ class TestRESTAPI extends WP_UnitTestCase {
 		$this->assertSame(
 			wp_get_attachment_url( $audio_id ),
 			$data[0]['url']
+		);
+
+		$this->assertSame(
+			0.0,
+			$data[0]['gainDb']
 		);
 	}
 
@@ -406,6 +411,7 @@ class TestRESTAPI extends WP_UnitTestCase {
 				'title',
 				'style',
 				'url',
+				'gainDb',
 				'image',
 			),
 			array_keys( $data[0] )
@@ -517,6 +523,86 @@ class TestRESTAPI extends WP_UnitTestCase {
 		$this->assertSame(
 			'Artwork by Jane Doe',
 			$data[0]['image']['caption']
+		);
+	}
+
+	public function test_endpoint_returns_track_gain() {
+		$audio_id = $this->create_audio_attachment( 'test-track.mp3' );
+
+		$track_id = self::factory()->post->create(
+			array(
+				'post_type'   => 'composer_track',
+				'post_status' => 'publish',
+				'post_title'  => 'Test Track',
+			)
+		);
+
+		update_post_meta(
+			$track_id,
+			'_composer_track_audio',
+			$audio_id
+		);
+
+		update_post_meta(
+			$track_id,
+			'_composer_track_gain_db',
+			-3.0
+		);
+
+		update_post_meta(
+			$track_id,
+			'_composer_track_order',
+			0
+		);
+
+		$request = new WP_REST_Request(
+			'GET',
+			'/composer-player/v1/tracks'
+		);
+
+		$response = rest_do_request( $request );
+		$data     = $response->get_data();
+
+		$this->assertSame(
+			-3.0,
+			$data[0]['gainDb']
+		);
+	}
+
+	public function test_endpoint_returns_zero_gain_when_not_set() {
+		$audio_id = $this->create_audio_attachment( 'test-track.mp3' );
+
+		$track_id = self::factory()->post->create(
+			array(
+				'post_type'   => 'composer_track',
+				'post_status' => 'publish',
+				'post_title'  => 'Test Track',
+			)
+		);
+
+		update_post_meta(
+			$track_id,
+			'_composer_track_audio',
+			$audio_id
+		);
+
+		update_post_meta(
+			$track_id,
+			'_composer_track_order',
+			0
+		);
+
+		$request = new WP_REST_Request(
+			'GET',
+			'/composer-player/v1/tracks'
+		);
+
+		$response = rest_do_request( $request );
+		$data     = $response->get_data();
+
+		$this->assertSame(
+			0.0,
+			$data[0]['gainDb']
 		);
 	}
 }

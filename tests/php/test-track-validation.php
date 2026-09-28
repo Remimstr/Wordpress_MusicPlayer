@@ -603,4 +603,172 @@ class TestTrackValidation extends WP_UnitTestCase {
 		unset( $_POST['composer_track_image'] );
 		unset( $_POST['composer_track_image_caption'] );
 	}
+
+	public function test_track_gain_saves_valid_negative_value() {
+		$post_id = self::factory()->post->create(
+			array(
+				'post_type'   => 'composer_track',
+				'post_status' => 'draft',
+				'post_title'  => 'New Track',
+			)
+		);
+
+		$_POST['composer_track_details_nonce'] = wp_create_nonce(
+			'composer_track_details'
+		);
+
+		$_POST['composer_track_style'] = 'Cinematic';
+		$_POST['composer_track_audio'] = '789';
+		$_POST['composer_track_gain_db'] = '-3.7';
+
+		do_action( 'save_post_composer_track', $post_id );
+
+		$this->assertSame(
+			'-3.7',
+			get_post_meta(
+				$post_id,
+				'_composer_track_gain_db',
+				true
+			)
+		);
+
+		unset( $_POST['composer_track_details_nonce'] );
+		unset( $_POST['composer_track_style'] );
+		unset( $_POST['composer_track_audio'] );
+		unset( $_POST['composer_track_gain_db'] );
+	}
+
+	public function test_track_gain_saves_valid_positive_value() {
+		$post_id = self::factory()->post->create(
+			array(
+				'post_type'   => 'composer_track',
+				'post_status' => 'draft',
+				'post_title'  => 'New Track',
+			)
+		);
+
+		$_POST['composer_track_details_nonce'] = wp_create_nonce(
+			'composer_track_details'
+		);
+
+		$_POST['composer_track_style'] = 'Cinematic';
+		$_POST['composer_track_audio'] = '789';
+		$_POST['composer_track_gain_db'] = '4.5';
+
+		do_action( 'save_post_composer_track', $post_id );
+
+		$this->assertSame(
+			'4.5',
+			get_post_meta(
+				$post_id,
+				'_composer_track_gain_db',
+				true
+			)
+		);
+
+		unset( $_POST['composer_track_details_nonce'] );
+		unset( $_POST['composer_track_style'] );
+		unset( $_POST['composer_track_audio'] );
+		unset( $_POST['composer_track_gain_db'] );
+	}
+
+	public function test_track_gain_is_clamped_to_maximum() {
+		$post_id = self::factory()->post->create(
+			array(
+				'post_type'   => 'composer_track',
+				'post_status' => 'draft',
+				'post_title'  => 'New Track',
+			)
+		);
+
+		$_POST['composer_track_details_nonce'] = wp_create_nonce(
+			'composer_track_details'
+		);
+
+		$_POST['composer_track_style'] = 'Cinematic';
+		$_POST['composer_track_audio'] = '789';
+		$_POST['composer_track_gain_db'] = '10';
+
+		do_action( 'save_post_composer_track', $post_id );
+
+		$this->assertSame(
+			'6',
+			get_post_meta(
+				$post_id,
+				'_composer_track_gain_db',
+				true
+			)
+		);
+
+		unset( $_POST['composer_track_details_nonce'] );
+		unset( $_POST['composer_track_style'] );
+		unset( $_POST['composer_track_audio'] );
+		unset( $_POST['composer_track_gain_db'] );
+	}
+
+	public function test_track_gain_is_clamped_to_minimum() {
+		$post_id = self::factory()->post->create(
+			array(
+				'post_type'   => 'composer_track',
+				'post_status' => 'draft',
+				'post_title'  => 'New Track',
+			)
+		);
+
+		$_POST['composer_track_details_nonce'] = wp_create_nonce(
+			'composer_track_details'
+		);
+
+		$_POST['composer_track_style'] = 'Cinematic';
+		$_POST['composer_track_audio'] = '789';
+		$_POST['composer_track_gain_db'] = '-20';
+
+		do_action( 'save_post_composer_track', $post_id );
+
+		$this->assertSame(
+			'-12',
+			get_post_meta(
+				$post_id,
+				'_composer_track_gain_db',
+				true
+			)
+		);
+
+		unset( $_POST['composer_track_details_nonce'] );
+		unset( $_POST['composer_track_style'] );
+		unset( $_POST['composer_track_audio'] );
+		unset( $_POST['composer_track_gain_db'] );
+	}
+
+	public function test_track_gain_defaults_to_zero_when_not_submitted() {
+		$post_id = self::factory()->post->create(
+			array(
+				'post_type'   => 'composer_track',
+				'post_status' => 'draft',
+				'post_title'  => 'New Track',
+			)
+		);
+
+		$_POST['composer_track_details_nonce'] = wp_create_nonce(
+			'composer_track_details'
+		);
+
+		$_POST['composer_track_style'] = 'Cinematic';
+		$_POST['composer_track_audio'] = '789';
+
+		do_action( 'save_post_composer_track', $post_id );
+
+		$this->assertSame(
+			'0',
+			get_post_meta(
+				$post_id,
+				'_composer_track_gain_db',
+				true
+			)
+		);
+
+		unset( $_POST['composer_track_details_nonce'] );
+		unset( $_POST['composer_track_style'] );
+		unset( $_POST['composer_track_audio'] );
+	}
 }

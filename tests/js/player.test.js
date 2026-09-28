@@ -4,6 +4,8 @@
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+let mockGainNode;
+
 const tracks = [
   {
     title: "Track One",
@@ -14,6 +16,7 @@ const tracks = [
       alt: "Track One artwork",
       caption: "Track One caption",
     },
+    gainDb: 0,
   },
   {
     title: "Track Two",
@@ -24,6 +27,7 @@ const tracks = [
       alt: "Track Two artwork",
       caption: "Track Two caption",
     },
+    gainDb: -3,
   },
 ];
 
@@ -94,6 +98,40 @@ describe("player", () => {
       disconnect() {}
     };
 
+    globalThis.AudioContext = class {
+      constructor() {
+        this.state = "running";
+        this.currentTime = 0;
+        this.destination = {};
+      }
+
+      createMediaElementSource(audio) {
+        return {
+          connect: vi.fn(),
+          audio,
+        };
+      }
+
+      createGain() {
+        mockGainNode = {
+          gain: {
+            value: 1,
+            setValueAtTime: vi.fn(),
+            cancelScheduledValues: vi.fn(),
+            setTargetAtTime: vi.fn(),
+          },
+          connect: vi.fn(),
+        };
+
+        return mockGainNode;
+      }
+
+      resume() {
+        this.state = "running";
+        return Promise.resolve();
+      }
+    };
+
     mockAudio();
 
     const originalCreateElement = document.createElement.bind(document);
@@ -133,6 +171,107 @@ describe("player", () => {
     expect(
       document.querySelector(".composer-player-style").textContent
     ).toContain("Orchestral");
+  });
+
+  it("applies unity gain to a track with 0 dB gain", async () => {
+    globalThis.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve(tracks),
+    });
+
+    await import("../../frontend/player.js");
+
+    await vi.waitFor(() => {
+      expect(
+        document.querySelector(".composer-player-title").textContent
+      ).toBe("Track One");
+    });
+
+    expect(mockGainNode.gain.setTargetAtTime).toHaveBeenCalledWith(
+      1,
+      0,
+      0.01
+    );
+  });
+
+  it("converts track gain from dB to linear gain", async () => {
+    globalThis.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve(tracks),
+    });
+
+    await import("../../frontend/player.js");
+
+    await vi.waitFor(() => {
+      expect(
+        document.querySelector(".composer-player-title").textContent
+      ).toBe("Track One");
+    });
+
+    const rows = document.querySelectorAll(".composer-track");
+
+    rows[1].click();
+
+    const expectedGain = 10 ** (-3 / 20);
+
+    expect(mockGainNode.gain.setTargetAtTime).toHaveBeenLastCalledWith(
+      expectedGain,
+      0,
+      0.01
+    );
+  });
+
+  it("supports positive track gain", async () => {
+    const boostedTrack = {
+      ...tracks[0],
+      gainDb: 6,
+    };
+
+    globalThis.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve([boostedTrack]),
+    });
+
+    await import("../../frontend/player.js");
+
+    await vi.waitFor(() => {
+      expect(
+        document.querySelector(".composer-player-title").textContent
+      ).toBe("Track One");
+    });
+
+    expect(mockGainNode.gain.setTargetAtTime).toHaveBeenCalledWith(
+      10 ** (6 / 20),
+      0,
+      0.01
+    );
+  });
+
+  it("defaults missing track gain to 0 dB", async () => {
+    const trackWithoutGain = {
+      ...tracks[0],
+    };
+
+    delete trackWithoutGain.gainDb;
+
+    globalThis.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve([trackWithoutGain]),
+    });
+
+    await import("../../frontend/player.js");
+
+    await vi.waitFor(() => {
+      expect(
+        document.querySelector(".composer-player-title").textContent
+      ).toBe("Track One");
+    });
+
+    expect(mockGainNode.gain.setTargetAtTime).toHaveBeenCalledWith(
+      1,
+      0,
+      0.01
+    );
   });
 
   it("loads and plays a selected track", async () => {
