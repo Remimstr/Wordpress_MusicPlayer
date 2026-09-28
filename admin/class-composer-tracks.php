@@ -140,7 +140,7 @@ class Composer_Tracks {
 				name="composer_track_gain_db"
 				value="<?php echo esc_attr( $gain_db ); ?>"
 				min="-12"
-				max="6"
+				max="0"
 				step="0.1"
 				style="width: 100px;"
 			>
@@ -149,7 +149,8 @@ class Composer_Tracks {
 
 		<p class="description">
 			Adjusts this track's playback level on the portfolio without changing
-			the audio file. Use 0 for no adjustment.
+			the audio file. Use 0 for no adjustment. Negative values reduce
+	        the playback level.
 		</p>
 
 		<p
@@ -367,7 +368,7 @@ class Composer_Tracks {
 
 		$submitted_gain_db = max(
 			-12.0,
-			min( 6.0, $submitted_gain_db )
+			min( 0.0, $submitted_gain_db )
 		);
 
 		$submitted_gain_db = round(

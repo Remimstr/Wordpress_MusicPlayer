@@ -638,7 +638,7 @@ class TestTrackValidation extends WP_UnitTestCase {
 		unset( $_POST['composer_track_gain_db'] );
 	}
 
-	public function test_track_gain_saves_valid_positive_value() {
+	public function test_track_gain_clamps_positive_value_to_zero() {
 		$post_id = self::factory()->post->create(
 			array(
 				'post_type'   => 'composer_track',
@@ -658,7 +658,7 @@ class TestTrackValidation extends WP_UnitTestCase {
 		do_action( 'save_post_composer_track', $post_id );
 
 		$this->assertSame(
-			'4.5',
+			'0',
 			get_post_meta(
 				$post_id,
 				'_composer_track_gain_db',
@@ -672,7 +672,7 @@ class TestTrackValidation extends WP_UnitTestCase {
 		unset( $_POST['composer_track_gain_db'] );
 	}
 
-	public function test_track_gain_is_clamped_to_maximum() {
+	public function test_track_gain_is_clamped_to_zero_maximum() {
 		$post_id = self::factory()->post->create(
 			array(
 				'post_type'   => 'composer_track',
@@ -692,7 +692,7 @@ class TestTrackValidation extends WP_UnitTestCase {
 		do_action( 'save_post_composer_track', $post_id );
 
 		$this->assertSame(
-			'6',
+			'0',
 			get_post_meta(
 				$post_id,
 				'_composer_track_gain_db',

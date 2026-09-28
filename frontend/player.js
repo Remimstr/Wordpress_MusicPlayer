@@ -5,10 +5,12 @@ import {
   getNextTrackIndex,
   getProgressPercentage,
 } from "./player-state.js";
+
 import {
   updateMediaSession,
-  initializeMediaSession
-} from './media-session.js';
+  initializeMediaSession,
+} from "./media-session.js";
+
 import { renderTracklist } from "./player-render.js";
 
 let tracks = [];
@@ -42,31 +44,34 @@ const floatingPlayer = document.getElementById(
 
 let currentTrackIndex = 0;
 
-let audioContext;
-let gainNode;
-
-function initializeAudioGain() {
-  audioContext = new AudioContext();
-
-  const source = audioContext.createMediaElementSource(audio);
-
-  gainNode = audioContext.createGain();
-
-  source.connect(gainNode);
-  gainNode.connect(audioContext.destination);
-}
+/*
+ * Gain is intentionally attenuation-only.
+ *
+ * 0 dB   = full volume
+ * -3 dB  ≈ 71%
+ * -6 dB  = 50%
+ * -9 dB  ≈ 35%
+ * -12 dB = 25%
+ *
+ * The admin UI should ideally enforce this range too, but we clamp
+ * defensively here in case an older track still contains a higher value.
+ */
+const MIN_GAIN_DB = -12;
+const MAX_GAIN_DB = 0;
 
 function dbToLinearGain(db) {
   return 10 ** (db / 20);
 }
 
 function setTrackGain(track) {
-    const gainDb = Number(track.gainDb ?? 0);
-    const gain = dbToLinearGain(gainDb);
-    const now = audioContext.currentTime;
+  const rawGainDb = Number(track.gainDb ?? 0);
 
-    gainNode.gain.cancelScheduledValues(now);
-    gainNode.gain.setTargetAtTime(gain, now, 0.01);
+  const gainDb = Math.min(
+    MAX_GAIN_DB,
+    Math.max(MIN_GAIN_DB, rawGainDb)
+  );
+
+  audio.volume = dbToLinearGain(gainDb);
 }
 
 function setButtonIcon(button, src) {
@@ -218,11 +223,11 @@ function updateArtwork(track) {
           once: true,
         });
 
-      // Fallback for browsers that fail to fire transitionend.
-      setTimeout(cleanup, 700);
+        // Fallback for browsers that fail to fire transitionend.
+        setTimeout(cleanup, 700);
+      });
     });
-  });
-};
+  };
 
   if (image.complete) {
     showIncoming();
@@ -284,6 +289,13 @@ function loadTrack(index) {
 
   const track = tracks[index];
 
+  // Reset playback speed explicitly.
+  // We never intentionally change this, but this makes the player's
+  // intended state unambiguous when switching tracks.
+  audio.defaultPlaybackRate = 1;
+  audio.playbackRate = 1;
+
+  // Apply attenuation directly to the native audio element.
   setTrackGain(track);
 
   audio.src = track.url;
@@ -291,8 +303,8 @@ function loadTrack(index) {
 
   playerTitle.textContent = track.title;
   playerStyle.textContent = `—\u00A0\u00A0${formatStyle(track.style)}`;
-  updateMediaSession(track);
 
+  updateMediaSession(track);
   updateArtwork(track);
 
   progress.value = 0;
@@ -313,9 +325,8 @@ async function playTrack(index) {
   }
 
   try {
-    if (audioContext.state === "suspended") {
-      await audioContext.resume();
-    }
+    // Explicitly restore normal speed before every play.
+    audio.playbackRate = 1;
 
     await audio.play();
 
@@ -329,6 +340,17 @@ async function playTrack(index) {
 }
 
 export function initializePlayer() {
+  if (!audio) {
+    console.error("Composer player audio element not found.");
+    return;
+  }
+
+  // Make the native audio element responsible for playback.
+  audio.preload = "auto";
+  audio.defaultPlaybackRate = 1;
+  audio.playbackRate = 1;
+  audio.volume = 1;
+
   if (floatingPlayer) {
     const updatePlayerHeight = () => {
       const height = floatingPlayer.getBoundingClientRect().height;
@@ -345,7 +367,6 @@ export function initializePlayer() {
   }
 
   initializePlayerIcons();
-  initializeAudioGain();
 
   fetch(config.tracksUrl)
     .then((response) => {
@@ -378,17 +399,9 @@ export function initializePlayer() {
       console.error("Could not load tracks:", error);
     });
 
-  playButton.addEventListener("click", async () => {
+  playButton.addEventListener("click", () => {
     if (audio.paused) {
-      try {
-        if (audioContext.state === "suspended") {
-          await audioContext.resume();
-        }
-
-        await audio.play();
-      } catch (error) {
-        console.error("Unable to play audio:", error);
-      }
+      playTrack(currentTrackIndex);
     } else {
       audio.pause();
     }
@@ -434,15 +447,23 @@ export function initializePlayer() {
   });
 
   audio.addEventListener("play", () => {
-    updateMediaSession(tracks[currentTrackIndex]);
-    navigator.mediaSession.playbackState = "playing";
+    // Refresh Media Session metadata at the moment playback actually starts.
+    if (tracks[currentTrackIndex]) {
+      updateMediaSession(tracks[currentTrackIndex]);
+    }
+
+    if ("mediaSession" in navigator) {
+      navigator.mediaSession.playbackState = "playing";
+    }
 
     updatePlayButton();
     updateTrackRows();
   });
 
   audio.addEventListener("pause", () => {
-    navigator.mediaSession.playbackState = "paused";
+    if ("mediaSession" in navigator) {
+      navigator.mediaSession.playbackState = "paused";
+    }
 
     updatePlayButton();
     updateTrackRows();

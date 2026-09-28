@@ -4,8 +4,6 @@
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-let mockGainNode;
-
 const tracks = [
   {
     title: "Track One",
@@ -98,40 +96,6 @@ describe("player", () => {
       disconnect() {}
     };
 
-    globalThis.AudioContext = class {
-      constructor() {
-        this.state = "running";
-        this.currentTime = 0;
-        this.destination = {};
-      }
-
-      createMediaElementSource(audio) {
-        return {
-          connect: vi.fn(),
-          audio,
-        };
-      }
-
-      createGain() {
-        mockGainNode = {
-          gain: {
-            value: 1,
-            setValueAtTime: vi.fn(),
-            cancelScheduledValues: vi.fn(),
-            setTargetAtTime: vi.fn(),
-          },
-          connect: vi.fn(),
-        };
-
-        return mockGainNode;
-      }
-
-      resume() {
-        this.state = "running";
-        return Promise.resolve();
-      }
-    };
-
     mockAudio();
 
     const originalCreateElement = document.createElement.bind(document);
@@ -187,14 +151,12 @@ describe("player", () => {
       ).toBe("Track One");
     });
 
-    expect(mockGainNode.gain.setTargetAtTime).toHaveBeenCalledWith(
-      1,
-      0,
-      0.01
-    );
+    const audio = document.querySelector(".composer-player-audio");
+
+    expect(audio.volume).toBe(1);
   });
 
-  it("converts track gain from dB to linear gain", async () => {
+  it("converts track gain from dB to linear volume", async () => {
     globalThis.fetch = vi.fn().mockResolvedValue({
       ok: true,
       json: () => Promise.resolve(tracks),
@@ -209,19 +171,14 @@ describe("player", () => {
     });
 
     const rows = document.querySelectorAll(".composer-track");
+    const audio = document.querySelector(".composer-player-audio");
 
     rows[1].click();
 
-    const expectedGain = 10 ** (-3 / 20);
-
-    expect(mockGainNode.gain.setTargetAtTime).toHaveBeenLastCalledWith(
-      expectedGain,
-      0,
-      0.01
-    );
+    expect(audio.volume).toBeCloseTo(10 ** (-3 / 20));
   });
 
-  it("supports positive track gain", async () => {
+  it("clamps positive track gain to 0 dB", async () => {
     const boostedTrack = {
       ...tracks[0],
       gainDb: 6,
@@ -240,11 +197,9 @@ describe("player", () => {
       ).toBe("Track One");
     });
 
-    expect(mockGainNode.gain.setTargetAtTime).toHaveBeenCalledWith(
-      10 ** (6 / 20),
-      0,
-      0.01
-    );
+    const audio = document.querySelector(".composer-player-audio");
+
+    expect(audio.volume).toBe(1);
   });
 
   it("defaults missing track gain to 0 dB", async () => {
@@ -267,11 +222,33 @@ describe("player", () => {
       ).toBe("Track One");
     });
 
-    expect(mockGainNode.gain.setTargetAtTime).toHaveBeenCalledWith(
-      1,
-      0,
-      0.01
-    );
+    const audio = document.querySelector(".composer-player-audio");
+
+    expect(audio.volume).toBe(1);
+  });
+
+  it("clamps track attenuation to -12 dB", async () => {
+    const quietTrack = {
+      ...tracks[0],
+      gainDb: -20,
+    };
+
+    globalThis.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve([quietTrack]),
+    });
+
+    await import("../../frontend/player.js");
+
+    await vi.waitFor(() => {
+      expect(
+        document.querySelector(".composer-player-title").textContent
+      ).toBe("Track One");
+    });
+
+    const audio = document.querySelector(".composer-player-audio");
+
+    expect(audio.volume).toBeCloseTo(10 ** (-12 / 20));
   });
 
   it("loads and plays a selected track", async () => {
