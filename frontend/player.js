@@ -5,6 +5,10 @@ import {
   getNextTrackIndex,
   getProgressPercentage,
 } from "./player-state.js";
+import {
+  updateMediaSession,
+  initializeMediaSession
+} from './media-session.js';
 import { renderTracklist } from "./player-render.js";
 
 let tracks = [];
@@ -287,6 +291,7 @@ function loadTrack(index) {
 
   playerTitle.textContent = track.title;
   playerStyle.textContent = `—\u00A0\u00A0${formatStyle(track.style)}`;
+  updateMediaSession(track);
 
   updateArtwork(track);
 
@@ -453,6 +458,15 @@ export function initializePlayer() {
     }
 
     playTrack(currentTrackIndex + 1);
+  });
+
+  initializeMediaSession({
+    audio,
+    getCurrentTrackIndex: () => currentTrackIndex,
+    getTrackCount: () => tracks.length,
+    playTrack,
+    getPreviousTrackIndex,
+    getNextTrackIndex,
   });
 }
 
