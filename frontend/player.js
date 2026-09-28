@@ -298,7 +298,7 @@ function loadTrack(index) {
   updateTrackRows();
 }
 
-function playTrack(index) {
+async function playTrack(index) {
   if (!tracks[index]) {
     return;
   }
@@ -307,18 +307,20 @@ function playTrack(index) {
     loadTrack(index);
   }
 
-  if (audioContext.state === "suspended") {
-    audioContext.resume();
-  }
+  try {
+    if (audioContext.state === "suspended") {
+      await audioContext.resume();
+    }
 
-  setButtonIcon(playButton, icons.pause);
-  playButton.setAttribute("aria-label", "Pause");
+    await audio.play();
 
-  audio.play().catch((error) => {
+    setButtonIcon(playButton, icons.pause);
+    playButton.setAttribute("aria-label", "Pause");
+  } catch (error) {
     console.error("Unable to play audio:", error);
     updatePlayButton();
     updateTrackRows();
-  });
+  }
 }
 
 export function initializePlayer() {
@@ -371,19 +373,21 @@ export function initializePlayer() {
       console.error("Could not load tracks:", error);
     });
 
-    playButton.addEventListener("click", () => {
-      if (audio.paused) {
+  playButton.addEventListener("click", async () => {
+    if (audio.paused) {
+      try {
         if (audioContext.state === "suspended") {
-          audioContext.resume();
+          await audioContext.resume();
         }
 
-        audio.play().catch((error) => {
-          console.error("Unable to play audio:", error);
-        });
-      } else {
-        audio.pause();
+        await audio.play();
+      } catch (error) {
+        console.error("Unable to play audio:", error);
       }
-    });
+    } else {
+      audio.pause();
+    }
+  });
 
   previousButton.addEventListener("click", () => {
     const previousIndex = getPreviousTrackIndex(
