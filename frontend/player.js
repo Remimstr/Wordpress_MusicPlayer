@@ -434,11 +434,16 @@ export function initializePlayer() {
   });
 
   audio.addEventListener("play", () => {
+    updateMediaSession(tracks[currentTrackIndex]);
+    navigator.mediaSession.playbackState = "playing";
+
     updatePlayButton();
     updateTrackRows();
   });
 
   audio.addEventListener("pause", () => {
+    navigator.mediaSession.playbackState = "paused";
+
     updatePlayButton();
     updateTrackRows();
   });
