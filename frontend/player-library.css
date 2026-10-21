@@ -99,7 +99,6 @@
   min-height: var(--player-track-min-height);
   padding: var(--player-track-padding-y) var(--player-track-padding-x);
   border-bottom: 1px solid var(--player-border);
-  background: var(--player-bg-elevated);
   cursor: pointer;
   transition:
     background-color 160ms ease,
