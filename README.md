@@ -175,3 +175,44 @@ The REST API lives with the frontend because its primary consumer is the public 
 The player is globally injected into the page footer. Normal full-page navigation will recreate the player and its `<audio>` element, so playback does not currently persist across full page loads.
 
 Persistent playback across page navigation would require client-side navigation or another SPA-style approach.
+
+## Squarespace / Standalone Usage
+
+The player can run in a standalone, serverless environment such as Squarespace without WordPress or PHP:
+
+### 1. Build Standalone Assets
+
+```bash
+npm run build:squarespace
+```
+
+This compiles:
+- `dist/composer-player.js`: Bundled runtime (with embedded SVG icons and automatic DOM mounting).
+- `dist/composer-player.css`: Bundled player styles.
+- `dist/squarespace-code-block.html`: An all-in-one HTML snippet ready to paste directly into a Squarespace Code Block.
+
+### 2. Configuration
+
+Set `window.ComposerPlayerConfig` with your tracklist:
+
+```html
+<script>
+window.ComposerPlayerConfig = {
+  tracks: [
+    {
+      title: "Track Title",
+      style: "Cinematic · Orchestral",
+      gainDb: -2,
+      url: "/s/track-filename.mp3",
+      image: {
+        url: "https://.../artwork.jpg",
+        caption: "Soundtrack Title"
+      }
+    }
+  ]
+};
+</script>
+```
+
+When tracks are provided inline, the player skips the REST API `fetch` call and initializes instantly.
+

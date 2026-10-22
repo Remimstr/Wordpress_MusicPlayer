@@ -62,6 +62,15 @@ jobs:
       - name: Run Vitest
         run: npm run test:js
 
+      - name: Build Squarespace bundle
+        run: npm run build:squarespace
+
+      - name: Upload Squarespace build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: squarespace-player
+          path: dist/
+
   deploy:
     name: Deploy to Production
     needs:

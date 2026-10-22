@@ -4,6 +4,7 @@
   "devDependencies": {
     "@wordpress/env": "^10.39.0",
     "jsdom": "^30.0.1",
+    "vite": "^8.3.5",
     "vitest": "^5.0.0"
   },
   "scripts": {
@@ -11,6 +12,7 @@
     "test": "npm run test:php && npm run test:js",
     "test:php": "wp-env run cli --env-cwd=wp-content/plugins/Wordpress_MusicPlayer composer test",
     "test:js": "vitest run",
-    "test:js:watch": "vitest"
+    "test:js:watch": "vitest",
+    "build:squarespace": "vite build --config vite.build.config.mjs"
   }
 }

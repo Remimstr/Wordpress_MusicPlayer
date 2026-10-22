@@ -6,8 +6,12 @@ export function renderTracklist(
   icons,
   getCurrentTrackIndex,
   audio,
-  playTrack
+  playTrack,
 ) {
+  if (!tracklist) {
+    return;
+  }
+
   tracklist.innerHTML = "";
 
   tracks.forEach((track, index) => {

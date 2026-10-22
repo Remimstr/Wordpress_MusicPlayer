@@ -6,24 +6,25 @@ import {
   getProgressPercentage,
 } from "./player-state.js";
 
-import {
-  updateMediaSession,
-  initializeMediaSession,
-} from "./media-session.js";
+import { updateMediaSession, initializeMediaSession } from "./media-session.js";
 
 import { renderTracklist } from "./player-render.js";
+import { ensurePlayerDom } from "./player-dom.js";
+import { resolveIcons } from "./player-icons.js";
+
+ensurePlayerDom();
 
 let tracks = [];
 
-const config = window.ComposerPlayer || {};
-const icons = config.icons || {};
+const config = window.ComposerPlayerConfig || window.ComposerPlayer || {};
+const icons = resolveIcons(config.icons);
 
 const audio = document.querySelector(".composer-player-audio");
 const tracklist = document.querySelector(".composer-tracklist");
 const player = document.querySelector(".composer-player");
 const artwork = document.querySelector(".composer-player-artwork");
 const artworkContent = document.querySelector(
-  ".composer-player-artwork-content"
+  ".composer-player-artwork-content",
 );
 const previousButton = document.querySelector(".composer-player-previous");
 const playButton = document.querySelector(".composer-player-play");
@@ -32,15 +33,11 @@ const playerTitle = document.querySelector(".composer-player-title");
 const playerStyle = document.querySelector(".composer-player-style");
 const progress = document.querySelector(".composer-player-progress");
 const currentTimeElement = document.querySelector(
-  ".composer-player-current-time"
+  ".composer-player-current-time",
 );
-const durationElement = document.querySelector(
-  ".composer-player-duration"
-);
+const durationElement = document.querySelector(".composer-player-duration");
 
-const floatingPlayer = document.getElementById(
-  "composer-floating-player"
-);
+const floatingPlayer = document.getElementById("composer-floating-player");
 
 let currentTrackIndex = 0;
 
@@ -66,10 +63,7 @@ function dbToLinearGain(db) {
 function setTrackGain(track) {
   const rawGainDb = Number(track.gainDb ?? 0);
 
-  const gainDb = Math.min(
-    MAX_GAIN_DB,
-    Math.max(MIN_GAIN_DB, rawGainDb)
-  );
+  const gainDb = Math.min(MAX_GAIN_DB, Math.max(MIN_GAIN_DB, rawGainDb));
 
   audio.volume = dbToLinearGain(gainDb);
 }
@@ -98,10 +92,7 @@ function updateProgress() {
     return;
   }
 
-  const percentage = getProgressPercentage(
-    audio.currentTime,
-    audio.duration
-  );
+  const percentage = getProgressPercentage(audio.currentTime, audio.duration);
 
   progress.value = percentage;
   progress.style.setProperty("--progress", `${percentage}%`);
@@ -134,6 +125,10 @@ function updatePlayButton() {
 }
 
 function updateTrackRows() {
+  if (!tracklist) {
+    return;
+  }
+
   const rows = tracklist.querySelectorAll(".composer-track");
 
   rows.forEach((row, index) => {
@@ -170,7 +165,7 @@ function updateArtwork(track) {
   }
 
   const currentGroup = artworkContent.querySelector(
-    ".composer-player-artwork-image-container"
+    ".composer-player-artwork-image-container",
   );
 
   const incomingGroup = document.createElement("div");
@@ -249,6 +244,10 @@ function preloadArtwork(tracks) {
 }
 
 function loadTrackDurations() {
+  if (!tracklist) {
+    return;
+  }
+
   tracks.forEach((track, index) => {
     const metadataAudio = new Audio();
 
@@ -256,16 +255,14 @@ function loadTrackDurations() {
 
     metadataAudio.addEventListener("loadedmetadata", () => {
       const row = tracklist.querySelector(
-        `.composer-track[data-track-index="${index}"]`
+        `.composer-track[data-track-index="${index}"]`,
       );
 
       if (!row) {
         return;
       }
 
-      const durationElement = row.querySelector(
-        ".composer-track-duration"
-      );
+      const durationElement = row.querySelector(".composer-track-duration");
 
       if (durationElement) {
         durationElement.textContent = formatTime(metadataAudio.duration);
@@ -357,7 +354,7 @@ export function initializePlayer() {
 
       document.documentElement.style.setProperty(
         "--composer-player-height",
-        `${height}px`
+        `${height}px`,
       );
     };
 
@@ -368,16 +365,35 @@ export function initializePlayer() {
 
   initializePlayerIcons();
 
-  fetch(config.tracksUrl)
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error(`Failed to load tracks: ${response.status}`);
-      }
+  const getTracks = () => {
+    if (Array.isArray(config.tracks)) {
+      return Promise.resolve(config.tracks);
+    }
 
-      return response.json();
-    })
+    if (Array.isArray(window.ComposerPlayerTracks)) {
+      return Promise.resolve(window.ComposerPlayerTracks);
+    }
+
+    if (config.tracksUrl) {
+      return fetch(config.tracksUrl).then((response) => {
+        if (!response.ok) {
+          throw new Error(`Failed to load tracks: ${response.status}`);
+        }
+
+        return response.json();
+      });
+    }
+
+    return Promise.resolve([]);
+  };
+
+  getTracks()
     .then((data) => {
       tracks = data;
+
+      if (!tracks || !tracks.length) {
+        return;
+      }
 
       preloadArtwork(tracks);
 
@@ -387,7 +403,7 @@ export function initializePlayer() {
         icons,
         () => currentTrackIndex,
         audio,
-        playTrack
+        playTrack,
       );
 
       loadTrack(0);
@@ -410,17 +426,14 @@ export function initializePlayer() {
   previousButton.addEventListener("click", () => {
     const previousIndex = getPreviousTrackIndex(
       currentTrackIndex,
-      tracks.length
+      tracks.length,
     );
 
     playTrack(previousIndex);
   });
 
   nextButton.addEventListener("click", () => {
-    const nextIndex = getNextTrackIndex(
-      currentTrackIndex,
-      tracks.length
-    );
+    const nextIndex = getNextTrackIndex(currentTrackIndex, tracks.length);
 
     playTrack(nextIndex);
   });
