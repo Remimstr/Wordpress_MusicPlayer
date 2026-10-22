@@ -6,6 +6,7 @@ import {
   getPreviousTrackIndex,
   getNextTrackIndex,
   getProgressPercentage,
+  safeEncodeUrl,
 } from "../../frontend/player-state.js";
 
 describe("formatTime", () => {
@@ -76,17 +77,46 @@ describe("getProgressPercentage", () => {
 
 describe("formatStyle", () => {
   it("replaces commas with separators", () => {
-    expect(formatStyle("Cinematic, Orchestral, Fantasy"))
-      .toBe("Cinematic · Orchestral · Fantasy");
+    expect(formatStyle("Cinematic, Orchestral, Fantasy")).toBe(
+      "Cinematic · Orchestral · Fantasy",
+    );
   });
 
   it("trims whitespace around values", () => {
-    expect(formatStyle("Cinematic,Orchestral, Fantasy"))
-      .toBe("Cinematic · Orchestral · Fantasy");
+    expect(formatStyle("Cinematic,Orchestral, Fantasy")).toBe(
+      "Cinematic · Orchestral · Fantasy",
+    );
   });
 
   it("handles a single value", () => {
-    expect(formatStyle("Cinematic"))
-      .toBe("Cinematic");
+    expect(formatStyle("Cinematic")).toBe("Cinematic");
+  });
+});
+
+describe("safeEncodeUrl", () => {
+  it("encodes unencoded spaces in URLs", () => {
+    expect(
+      safeEncodeUrl(
+        "https://remimstr.github.io/Wordpress_MusicPlayer/audio/Boss fight.mp3",
+      ),
+    ).toBe(
+      "https://remimstr.github.io/Wordpress_MusicPlayer/audio/Boss%20fight.mp3",
+    );
+  });
+
+  it("does not double-encode already encoded %20 spaces", () => {
+    expect(
+      safeEncodeUrl(
+        "https://remimstr.github.io/Wordpress_MusicPlayer/audio/Boss%20fight.mp3",
+      ),
+    ).toBe(
+      "https://remimstr.github.io/Wordpress_MusicPlayer/audio/Boss%20fight.mp3",
+    );
+  });
+
+  it("handles empty or invalid inputs gracefully", () => {
+    expect(safeEncodeUrl("")).toBe("");
+    expect(safeEncodeUrl(null)).toBe("");
+    expect(safeEncodeUrl(undefined)).toBe("");
   });
 });

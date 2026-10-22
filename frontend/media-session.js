@@ -44,7 +44,7 @@ export function initializeMediaSession({
   navigator.mediaSession.setActionHandler("previoustrack", () => {
     const previousIndex = getPreviousTrackIndex(
       getCurrentTrackIndex(),
-      getTrackCount()
+      getTrackCount(),
     );
 
     playTrack(previousIndex);
@@ -53,7 +53,7 @@ export function initializeMediaSession({
   navigator.mediaSession.setActionHandler("nexttrack", () => {
     const nextIndex = getNextTrackIndex(
       getCurrentTrackIndex(),
-      getTrackCount()
+      getTrackCount(),
     );
 
     playTrack(nextIndex);

@@ -92,7 +92,7 @@ describe("updateMediaSession", () => {
             type: "image/png",
           },
         ],
-      })
+      }),
     );
   });
 
@@ -102,7 +102,7 @@ describe("updateMediaSession", () => {
     expect(() =>
       updateMediaSession({
         title: "Flidais' Grove",
-      })
+      }),
     ).not.toThrow();
   });
 });
@@ -142,22 +142,22 @@ describe("initializeMediaSession", () => {
 
     expect(navigator.mediaSession.setActionHandler).toHaveBeenCalledWith(
       "play",
-      expect.any(Function)
+      expect.any(Function),
     );
 
     expect(navigator.mediaSession.setActionHandler).toHaveBeenCalledWith(
       "pause",
-      expect.any(Function)
+      expect.any(Function),
     );
 
     expect(navigator.mediaSession.setActionHandler).toHaveBeenCalledWith(
       "previoustrack",
-      expect.any(Function)
+      expect.any(Function),
     );
 
     expect(navigator.mediaSession.setActionHandler).toHaveBeenCalledWith(
       "nexttrack",
-      expect.any(Function)
+      expect.any(Function),
     );
   });
 

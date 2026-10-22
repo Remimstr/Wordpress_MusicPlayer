@@ -14,9 +14,7 @@ export function getPreviousTrackIndex(currentIndex, trackCount) {
     return 0;
   }
 
-  return currentIndex === 0
-    ? trackCount - 1
-    : currentIndex - 1;
+  return currentIndex === 0 ? trackCount - 1 : currentIndex - 1;
 }
 
 export function getNextTrackIndex(currentIndex, trackCount) {
@@ -24,16 +22,11 @@ export function getNextTrackIndex(currentIndex, trackCount) {
     return 0;
   }
 
-  return currentIndex === trackCount - 1
-    ? 0
-    : currentIndex + 1;
+  return currentIndex === trackCount - 1 ? 0 : currentIndex + 1;
 }
 
 export function getProgressPercentage(currentTime, duration) {
-  if (
-    !Number.isFinite(duration) ||
-    duration <= 0
-  ) {
+  if (!Number.isFinite(duration) || duration <= 0) {
     return 0;
   }
 
@@ -45,4 +38,16 @@ export function formatStyle(style) {
     .split(",")
     .map((value) => value.trim())
     .join(" · ");
+}
+
+export function safeEncodeUrl(url) {
+  if (!url || typeof url !== "string") {
+    return "";
+  }
+
+  try {
+    return encodeURI(decodeURI(url));
+  } catch {
+    return encodeURI(url);
+  }
 }

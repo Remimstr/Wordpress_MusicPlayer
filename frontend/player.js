@@ -4,6 +4,7 @@ import {
   getPreviousTrackIndex,
   getNextTrackIndex,
   getProgressPercentage,
+  safeEncodeUrl,
 } from "./player-state.js";
 
 import { updateMediaSession, initializeMediaSession } from "./media-session.js";
@@ -174,7 +175,7 @@ function updateArtwork(track) {
 
   const image = document.createElement("img");
   image.className = "composer-player-artwork-image";
-  image.src = track.image.url;
+  image.src = safeEncodeUrl(track.image.url);
   image.alt = track.image.alt || "";
 
   const caption = document.createElement("div");
@@ -239,7 +240,7 @@ function preloadArtwork(tracks) {
     }
 
     const image = new Image();
-    image.src = track.image.url;
+    image.src = safeEncodeUrl(track.image.url);
   });
 }
 
@@ -273,7 +274,7 @@ function loadTrackDurations() {
       console.warn(`Unable to load duration for "${track.title}"`);
     });
 
-    metadataAudio.src = track.url;
+    metadataAudio.src = safeEncodeUrl(track.url);
   });
 }
 
@@ -295,7 +296,7 @@ function loadTrack(index) {
   // Apply attenuation directly to the native audio element.
   setTrackGain(track);
 
-  audio.src = track.url;
+  audio.src = safeEncodeUrl(track.url);
   audio.load();
 
   playerTitle.textContent = track.title;

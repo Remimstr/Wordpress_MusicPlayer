@@ -100,18 +100,20 @@ describe("player", () => {
 
     const originalCreateElement = document.createElement.bind(document);
 
-    vi.spyOn(document, "createElement").mockImplementation((tagName, options) => {
-      const element = originalCreateElement(tagName, options);
+    vi.spyOn(document, "createElement").mockImplementation(
+      (tagName, options) => {
+        const element = originalCreateElement(tagName, options);
 
-      if (tagName.toLowerCase() === "img") {
-        Object.defineProperty(element, "complete", {
-          configurable: true,
-          value: true,
-        });
-      }
+        if (tagName.toLowerCase() === "img") {
+          Object.defineProperty(element, "complete", {
+            configurable: true,
+            value: true,
+          });
+        }
 
-      return element;
-    });
+        return element;
+      },
+    );
   });
 
   it("loads the first track", async () => {
@@ -123,9 +125,9 @@ describe("player", () => {
     await import("../../frontend/player.js");
 
     await vi.waitFor(() => {
-      expect(
-        document.querySelector(".composer-player-title").textContent
-      ).toBe("Track One");
+      expect(document.querySelector(".composer-player-title").textContent).toBe(
+        "Track One",
+      );
     });
 
     const audio = document.querySelector(".composer-player-audio");
@@ -133,7 +135,7 @@ describe("player", () => {
     expect(audio.src).toContain("/track-one.mp3");
 
     expect(
-      document.querySelector(".composer-player-style").textContent
+      document.querySelector(".composer-player-style").textContent,
     ).toContain("Orchestral");
   });
 
@@ -146,9 +148,9 @@ describe("player", () => {
     await import("../../frontend/player.js");
 
     await vi.waitFor(() => {
-      expect(
-        document.querySelector(".composer-player-title").textContent
-      ).toBe("Track One");
+      expect(document.querySelector(".composer-player-title").textContent).toBe(
+        "Track One",
+      );
     });
 
     const audio = document.querySelector(".composer-player-audio");
@@ -165,9 +167,9 @@ describe("player", () => {
     await import("../../frontend/player.js");
 
     await vi.waitFor(() => {
-      expect(
-        document.querySelector(".composer-player-title").textContent
-      ).toBe("Track One");
+      expect(document.querySelector(".composer-player-title").textContent).toBe(
+        "Track One",
+      );
     });
 
     const rows = document.querySelectorAll(".composer-track");
@@ -192,9 +194,9 @@ describe("player", () => {
     await import("../../frontend/player.js");
 
     await vi.waitFor(() => {
-      expect(
-        document.querySelector(".composer-player-title").textContent
-      ).toBe("Track One");
+      expect(document.querySelector(".composer-player-title").textContent).toBe(
+        "Track One",
+      );
     });
 
     const audio = document.querySelector(".composer-player-audio");
@@ -217,9 +219,9 @@ describe("player", () => {
     await import("../../frontend/player.js");
 
     await vi.waitFor(() => {
-      expect(
-        document.querySelector(".composer-player-title").textContent
-      ).toBe("Track One");
+      expect(document.querySelector(".composer-player-title").textContent).toBe(
+        "Track One",
+      );
     });
 
     const audio = document.querySelector(".composer-player-audio");
@@ -241,9 +243,9 @@ describe("player", () => {
     await import("../../frontend/player.js");
 
     await vi.waitFor(() => {
-      expect(
-        document.querySelector(".composer-player-title").textContent
-      ).toBe("Track One");
+      expect(document.querySelector(".composer-player-title").textContent).toBe(
+        "Track One",
+      );
     });
 
     const audio = document.querySelector(".composer-player-audio");
@@ -260,9 +262,9 @@ describe("player", () => {
     await import("../../frontend/player.js");
 
     await vi.waitFor(() => {
-      expect(
-        document.querySelector(".composer-player-title").textContent
-      ).toBe("Track One");
+      expect(document.querySelector(".composer-player-title").textContent).toBe(
+        "Track One",
+      );
     });
 
     const rows = document.querySelectorAll(".composer-track");
@@ -273,12 +275,12 @@ describe("player", () => {
 
     expect(audio.src).toContain("/track-two.mp3");
 
-    expect(
-      document.querySelector(".composer-player-title").textContent
-    ).toBe("Track Two");
+    expect(document.querySelector(".composer-player-title").textContent).toBe(
+      "Track Two",
+    );
 
     expect(
-      document.querySelector(".composer-player-style").textContent
+      document.querySelector(".composer-player-style").textContent,
     ).toContain("Electronic");
 
     expect(audio.play).toHaveBeenCalled();
@@ -293,9 +295,9 @@ describe("player", () => {
     await import("../../frontend/player.js");
 
     await vi.waitFor(() => {
-      expect(
-        document.querySelector(".composer-player-title").textContent
-      ).toBe("Track One");
+      expect(document.querySelector(".composer-player-title").textContent).toBe(
+        "Track One",
+      );
     });
 
     const audio = document.querySelector(".composer-player-audio");
@@ -325,9 +327,9 @@ describe("player", () => {
     await import("../../frontend/player.js");
 
     await vi.waitFor(() => {
-      expect(
-        document.querySelector(".composer-player-title").textContent
-      ).toBe("Track One");
+      expect(document.querySelector(".composer-player-title").textContent).toBe(
+        "Track One",
+      );
     });
 
     const audio = document.querySelector(".composer-player-audio");
@@ -341,9 +343,9 @@ describe("player", () => {
 
     expect(audio.src).toContain("/track-one.mp3");
 
-    expect(
-      document.querySelector(".composer-player-title").textContent
-    ).toBe("Track One");
+    expect(document.querySelector(".composer-player-title").textContent).toBe(
+      "Track One",
+    );
 
     expect(audio.play).toHaveBeenCalled();
   });
@@ -357,9 +359,9 @@ describe("player", () => {
     await import("../../frontend/player.js");
 
     await vi.waitFor(() => {
-      expect(
-        document.querySelector(".composer-player-title").textContent
-      ).toBe("Track One");
+      expect(document.querySelector(".composer-player-title").textContent).toBe(
+        "Track One",
+      );
     });
 
     const audio = document.querySelector(".composer-player-audio");
@@ -388,9 +390,9 @@ describe("player", () => {
     await import("../../frontend/player.js");
 
     await vi.waitFor(() => {
-      expect(
-        document.querySelector(".composer-player-title").textContent
-      ).toBe("Track One");
+      expect(document.querySelector(".composer-player-title").textContent).toBe(
+        "Track One",
+      );
     });
 
     const audio = document.querySelector(".composer-player-audio");
@@ -420,33 +422,31 @@ describe("player", () => {
     await import("../../frontend/player.js");
 
     await vi.waitFor(() => {
-      expect(
-        document.querySelector(".composer-player-title").textContent
-      ).toBe("Track One");
+      expect(document.querySelector(".composer-player-title").textContent).toBe(
+        "Track One",
+      );
     });
 
     const audio = document.querySelector(".composer-player-audio");
 
-    const previousButton = document.querySelector(
-      ".composer-player-previous"
-    );
+    const previousButton = document.querySelector(".composer-player-previous");
     const nextButton = document.querySelector(".composer-player-next");
 
     nextButton.click();
 
     expect(audio.src).toContain("/track-two.mp3");
 
-    expect(
-      document.querySelector(".composer-player-title").textContent
-    ).toBe("Track Two");
+    expect(document.querySelector(".composer-player-title").textContent).toBe(
+      "Track Two",
+    );
 
     previousButton.click();
 
     expect(audio.src).toContain("/track-one.mp3");
 
-    expect(
-      document.querySelector(".composer-player-title").textContent
-    ).toBe("Track One");
+    expect(document.querySelector(".composer-player-title").textContent).toBe(
+      "Track One",
+    );
   });
 
   it("advances to the next track when the current track ends", async () => {
@@ -458,9 +458,9 @@ describe("player", () => {
     await import("../../frontend/player.js");
 
     await vi.waitFor(() => {
-      expect(
-        document.querySelector(".composer-player-title").textContent
-      ).toBe("Track One");
+      expect(document.querySelector(".composer-player-title").textContent).toBe(
+        "Track One",
+      );
     });
 
     const audio = document.querySelector(".composer-player-audio");
@@ -469,9 +469,9 @@ describe("player", () => {
 
     expect(audio.src).toContain("/track-two.mp3");
 
-    expect(
-      document.querySelector(".composer-player-title").textContent
-    ).toBe("Track Two");
+    expect(document.querySelector(".composer-player-title").textContent).toBe(
+      "Track Two",
+    );
 
     expect(audio.play).toHaveBeenCalled();
   });
@@ -485,9 +485,9 @@ describe("player", () => {
     await import("../../frontend/player.js");
 
     await vi.waitFor(() => {
-      expect(
-        document.querySelector(".composer-player-title").textContent
-      ).toBe("Track One");
+      expect(document.querySelector(".composer-player-title").textContent).toBe(
+        "Track One",
+      );
     });
 
     const audio = document.querySelector(".composer-player-audio");
@@ -497,9 +497,9 @@ describe("player", () => {
     rows[1].click();
 
     await vi.waitFor(() => {
-      expect(
-        document.querySelector(".composer-player-title").textContent
-      ).toBe("Track Two");
+      expect(document.querySelector(".composer-player-title").textContent).toBe(
+        "Track Two",
+      );
     });
 
     Object.defineProperty(audio, "currentTime", {
@@ -512,12 +512,12 @@ describe("player", () => {
 
     expect(audio.currentTime).toBe(0);
 
-    expect(
-      document.querySelector(".composer-player-title").textContent
-    ).toBe("Track Two");
+    expect(document.querySelector(".composer-player-title").textContent).toBe(
+      "Track Two",
+    );
 
     expect(
-      document.querySelector(".composer-player-current-time").textContent
+      document.querySelector(".composer-player-current-time").textContent,
     ).toBe("0:00");
   });
 
@@ -530,9 +530,9 @@ describe("player", () => {
     await import("../../frontend/player.js");
 
     await vi.waitFor(() => {
-      expect(
-        document.querySelector(".composer-player-title").textContent
-      ).toBe("Track One");
+      expect(document.querySelector(".composer-player-title").textContent).toBe(
+        "Track One",
+      );
     });
 
     const audio = document.querySelector(".composer-player-audio");
@@ -555,7 +555,7 @@ describe("player", () => {
     expect(audio.currentTime).toBe(100);
 
     expect(
-      document.querySelector(".composer-player-current-time").textContent
+      document.querySelector(".composer-player-current-time").textContent,
     ).toBe("1:40");
   });
 
@@ -574,13 +574,13 @@ describe("player", () => {
     await vi.waitFor(() => {
       expect(consoleError).toHaveBeenCalledWith(
         "Could not load tracks:",
-        expect.any(Error)
+        expect.any(Error),
       );
     });
 
-    expect(
-      document.querySelector(".composer-tracklist").children.length
-    ).toBe(0);
+    expect(document.querySelector(".composer-tracklist").children.length).toBe(
+      0,
+    );
   });
 
   it("plays the track selected from the tracklist", async () => {
@@ -592,9 +592,9 @@ describe("player", () => {
     await import("../../frontend/player.js");
 
     await vi.waitFor(() => {
-      expect(
-        document.querySelector(".composer-player-title").textContent
-      ).toBe("Track One");
+      expect(document.querySelector(".composer-player-title").textContent).toBe(
+        "Track One",
+      );
     });
 
     const audio = document.querySelector(".composer-player-audio");
@@ -604,18 +604,18 @@ describe("player", () => {
 
     expect(audio.src).toContain("/track-two.mp3");
 
-    expect(
-      document.querySelector(".composer-player-title").textContent
-    ).toBe("Track Two");
+    expect(document.querySelector(".composer-player-title").textContent).toBe(
+      "Track Two",
+    );
 
     expect(
-      document.querySelector(".composer-player-style").textContent
+      document.querySelector(".composer-player-style").textContent,
     ).toContain("Electronic");
 
     expect(audio.play).toHaveBeenCalled();
   });
 
-    it("crossfades artwork between tracks", async () => {
+  it("crossfades artwork between tracks", async () => {
     globalThis.fetch = vi.fn().mockResolvedValue({
       ok: true,
       json: () => Promise.resolve(tracks),
@@ -624,7 +624,7 @@ describe("player", () => {
     await import("../../frontend/player.js");
 
     const artworkContent = document.querySelector(
-      ".composer-player-artwork-content"
+      ".composer-player-artwork-content",
     );
 
     const rows = document.querySelectorAll(".composer-track");
@@ -632,40 +632,38 @@ describe("player", () => {
     await vi.waitFor(() => {
       expect(
         artworkContent.querySelector(
-          ".composer-player-artwork-image-container.is-active"
-        )
+          ".composer-player-artwork-image-container.is-active",
+        ),
       ).not.toBeNull();
     });
 
     const firstGroup = artworkContent.querySelector(
-      ".composer-player-artwork-image-container"
+      ".composer-player-artwork-image-container",
     );
 
     expect(firstGroup.querySelector("img").src).toContain("track-one.jpg");
     expect(firstGroup.querySelector("img").alt).toBe("Track One artwork");
     expect(
-      firstGroup.querySelector(".composer-player-artwork-caption").innerHTML
+      firstGroup.querySelector(".composer-player-artwork-caption").innerHTML,
     ).toBe("Track One caption");
 
     rows[1].click();
 
     const incomingGroup = artworkContent.querySelector(
-      ".composer-player-artwork-image-container.is-entering"
+      ".composer-player-artwork-image-container.is-entering",
     );
 
     expect(incomingGroup).not.toBeNull();
-    expect(incomingGroup.querySelector("img").src).toContain(
-      "track-two.jpg"
-    );
+    expect(incomingGroup.querySelector("img").src).toContain("track-two.jpg");
     expect(incomingGroup.querySelector("img").alt).toBe("Track Two artwork");
     expect(
-      incomingGroup.querySelector(".composer-player-artwork-caption").innerHTML
+      incomingGroup.querySelector(".composer-player-artwork-caption").innerHTML,
     ).toBe("Track Two caption");
 
     expect(
       artworkContent.querySelectorAll(
-        ".composer-player-artwork-image-container"
-      )
+        ".composer-player-artwork-image-container",
+      ),
     ).toHaveLength(2);
 
     await vi.waitFor(() => {
@@ -678,15 +676,15 @@ describe("player", () => {
     await vi.waitFor(() => {
       expect(
         artworkContent.querySelectorAll(
-          ".composer-player-artwork-image-container"
-        )
+          ".composer-player-artwork-image-container",
+        ),
       ).toHaveLength(1);
     });
 
     expect(
       artworkContent.querySelector(
-        ".composer-player-artwork-image-container.is-active"
-      )
+        ".composer-player-artwork-image-container.is-active",
+      ),
     ).toBe(incomingGroup);
   });
 
@@ -704,14 +702,14 @@ describe("player", () => {
     await import("../../frontend/player.js");
 
     await vi.waitFor(() => {
-      expect(
-        document.querySelector(".composer-player-title").textContent
-      ).toBe("Track One");
+      expect(document.querySelector(".composer-player-title").textContent).toBe(
+        "Track One",
+      );
     });
 
     const artwork = document.querySelector(".composer-player-artwork");
     const artworkContent = document.querySelector(
-      ".composer-player-artwork-content"
+      ".composer-player-artwork-content",
     );
 
     expect(artwork.hidden).toBe(false);
@@ -719,8 +717,8 @@ describe("player", () => {
 
     expect(
       artworkContent.querySelectorAll(
-        ".composer-player-artwork-image-container"
-      )
+        ".composer-player-artwork-image-container",
+      ),
     ).toHaveLength(0);
   });
 
@@ -733,7 +731,7 @@ describe("player", () => {
     await import("../../frontend/player.js");
 
     const artworkContent = document.querySelector(
-      ".composer-player-artwork-content"
+      ".composer-player-artwork-content",
     );
 
     const rows = document.querySelectorAll(".composer-track");
@@ -741,19 +739,19 @@ describe("player", () => {
     await vi.waitFor(() => {
       expect(
         artworkContent.querySelector(
-          ".composer-player-artwork-image-container.is-active"
-        )
+          ".composer-player-artwork-image-container.is-active",
+        ),
       ).not.toBeNull();
     });
 
     const firstGroup = artworkContent.querySelector(
-      ".composer-player-artwork-image-container"
+      ".composer-player-artwork-image-container",
     );
 
     rows[1].click();
 
     const secondGroup = artworkContent.querySelector(
-      ".composer-player-artwork-image-container.is-entering"
+      ".composer-player-artwork-image-container.is-entering",
     );
 
     await vi.waitFor(() => {
@@ -766,15 +764,13 @@ describe("player", () => {
     await vi.waitFor(() => {
       expect(
         artworkContent.querySelectorAll(
-          ".composer-player-artwork-image-container"
-        )
+          ".composer-player-artwork-image-container",
+        ),
       ).toHaveLength(1);
     });
 
     expect(
-      artworkContent.querySelector(
-        ".composer-player-artwork-image-container"
-      )
+      artworkContent.querySelector(".composer-player-artwork-image-container"),
     ).toBe(secondGroup);
 
     expect(secondGroup.querySelector("img").src).toContain("track-two.jpg");
@@ -789,7 +785,7 @@ describe("player", () => {
     await import("../../frontend/player.js");
 
     const artworkContent = document.querySelector(
-      ".composer-player-artwork-content"
+      ".composer-player-artwork-content",
     );
 
     const rows = document.querySelectorAll(".composer-track");
@@ -798,13 +794,13 @@ describe("player", () => {
     await vi.waitFor(() => {
       expect(
         artworkContent.querySelector(
-          ".composer-player-artwork-image-container.is-active"
-        )
+          ".composer-player-artwork-image-container.is-active",
+        ),
       ).not.toBeNull();
     });
 
     const initialGroup = artworkContent.querySelector(
-      ".composer-player-artwork-image-container"
+      ".composer-player-artwork-image-container",
     );
 
     const initialLoadCallCount = audio.load.mock.calls.length;
@@ -813,14 +809,12 @@ describe("player", () => {
 
     expect(
       artworkContent.querySelectorAll(
-        ".composer-player-artwork-image-container"
-      )
+        ".composer-player-artwork-image-container",
+      ),
     ).toHaveLength(1);
 
     expect(
-      artworkContent.querySelector(
-        ".composer-player-artwork-image-container"
-      )
+      artworkContent.querySelector(".composer-player-artwork-image-container"),
     ).toBe(initialGroup);
 
     expect(audio.load).toHaveBeenCalledTimes(initialLoadCallCount);

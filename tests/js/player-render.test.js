@@ -34,7 +34,7 @@ describe("renderTracklist", () => {
         play: vi.fn(),
         pause: vi.fn(),
       },
-      vi.fn()
+      vi.fn(),
     );
 
     const rows = tracklist.querySelectorAll(".composer-track");
@@ -42,19 +42,19 @@ describe("renderTracklist", () => {
     expect(rows).toHaveLength(2);
 
     expect(
-      rows[0].querySelector(".composer-track-title").textContent.trim()
+      rows[0].querySelector(".composer-track-title").textContent.trim(),
     ).toBe("Track One");
 
     expect(
-      rows[0].querySelector(".composer-track-style").textContent.trim()
+      rows[0].querySelector(".composer-track-style").textContent.trim(),
     ).toBe("Orchestral");
 
     expect(
-      rows[1].querySelector(".composer-track-title").textContent.trim()
+      rows[1].querySelector(".composer-track-title").textContent.trim(),
     ).toBe("Track Two");
 
     expect(
-      rows[1].querySelector(".composer-track-style").textContent.trim()
+      rows[1].querySelector(".composer-track-style").textContent.trim(),
     ).toBe("Electronic");
   });
 });
